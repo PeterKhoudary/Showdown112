@@ -14,7 +14,7 @@ def turn(user, foe):
             print("Here is your moveset:")
             print(attacker.moveset)
             moveName = input("What attack will you choose? ")
-            taken, left = damageCalc(attacker, defender, moveNames[moveName])
+            taken, left = damageOutput(attacker, defender, moveNames[moveName])
             print(f"{attacker}'s {moveName} takes {taken}% of {defender}'s life! {defender} has {left}% left.")
             if left <= 0:
                 print(f'{defender} has run out of energy to battle! {attacker} wins!')
