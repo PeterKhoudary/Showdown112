@@ -17,6 +17,7 @@ class Monster():
         for stat in self.baseStats:
             self.EVs[stat] = 0
             self.finalStats[stat] = self.finalStat(stat)
+        self.fainted = False
 
     def finalStat(self, stat):
         if stat == "HP":
@@ -62,8 +63,6 @@ class Monster():
             self.moveset.append(moveChoice)
         print(self.moveset)
 
-
-
 #List of pokemon bases
 dragoniteBase = {"baseStats" : {'HP': 91, 'ATK': 134, 'DEF': 95, 'SPATK': 100, 'SPDEF': 100, 'SPE': 80},
                  "types": {"dragon", "flying"},
@@ -74,5 +73,3 @@ volcBase = {"baseStats": {'HP': 85, 'ATK': 60, 'DEF': 65, 'SPATK': 135, 'SPDEF':
 
 lance = Monster("Dragonite", dragoniteBase)
 alder = Monster("Volcarona", volcBase)
-
-
