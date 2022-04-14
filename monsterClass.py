@@ -11,7 +11,7 @@ class Monster():
         self.type = "-".join(self.types)
         self.baseStats = base["baseStats"]
         self.movepool = base["movepool"]
-        self.moveset = list(self.movepool) #edit this later
+        self.moveset = [] 
         self.EVs = dict()
         self.finalStats = dict()
         for stat in self.baseStats:
@@ -66,10 +66,21 @@ class Monster():
 #List of pokemon bases
 dragoniteBase = {"baseStats" : {'HP': 91, 'ATK': 134, 'DEF': 95, 'SPATK': 100, 'SPDEF': 100, 'SPE': 80},
                  "types": {"dragon", "flying"},
-                 "movepool": {"Dragon Claw", "Ice Beam", "Extreme Speed", "Earthquake"}}
+                 "movepool": {"Dragon Claw", "Ice Beam", "Extreme Speed", "Earthquake", "Iron Head", "Body Slam"}}
 volcBase = {"baseStats": {'HP': 85, 'ATK': 60, 'DEF': 65, 'SPATK': 135, 'SPDEF': 105, 'SPE': 100},
             "types": {"bug", "fire"},
-            "movepool" : {"Fire Blast", "Bug Buzz", "Quick Attack", "Hurricane"}}
+            "movepool" : {"Fire Blast", "Bug Buzz", "Psychic", "Hurricane"}}
+keldBase = {"baseStats": {'HP': 91, 'ATK': 72, 'DEF': 90, 'SPATK': 129, 'SPDEF': 90, 'SPE': 108},
+            "types": {"water", "fighting"},
+            "movepool" : {"Secret Sword", "Scald", "Hydro Pump", "Icy Wind"}}
+tyrantBase = {"baseStats": {'HP': 100, 'ATK': 134, 'DEF': 110, 'SPATK': 95, 'SPDEF': 100, 'SPE': 61},
+            "types": {"dark", "rock"},
+            "movepool" : {"Stone Edge", "Crunch", "Earthquake", "Iron Head", "Dragon Claw", "Ice Beam"}}
 
-lance = Monster("Dragonite", dragoniteBase)
-alder = Monster("Volcarona", volcBase)
+
+#lance = Monster("Dragonite", dragoniteBase)
+#alder = Monster("Volcarona", volcBase)
+blunder = Monster("Keldeo", keldBase)
+blunder.setMoves()
+thugger = Monster("Tyranitar", tyrantBase)
+thugger.setMoves()

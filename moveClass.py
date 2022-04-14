@@ -17,16 +17,29 @@ dragonClaw = Move("Dragon Claw", "dragon", 80, 1, 24, "ATK", "DEF", 0)
 extremeSpeed = Move("Extreme Speed", "normal", 80, 1, 8, "ATK", "DEF", 2)
 earthquake = Move("Earthquake", "ground", 100, 1, 16, "ATK", "DEF", 0)
 iceBeam = Move("Ice Beam", "ice", 95, 1, 16, "SPATK", "SPDEF", 0)
-
 fireBlast = Move("Fire Blast", "fire", 120, .85, 8, "SPATK", "SPDEF", 0)
 bugBuzz = Move("Bug Buzz", "bug", 90, 1, 16, "SPATK", "SPDEF", 0)
 hurricane = Move("Hurricane", "flying", 120, .7, 16, "SPATK", "SPDEF", 0)
-quickAttack = Move("Quick Attack", "normal", 40, 1, 48, "ATK", "DEF", 1)
+psychic = Move("Psychic", "psychic", 90, 1, 16, "SPATK", "SPDEF", 1)
+scald = Move("Scald", "water", 80, 1, 24, "SPATK", "SPDEF", 0)
+secretSword = Move("Secret Sword", "fighting", 85, 1, 16, "SPATK", "DEF", 0)
+hydroPump = Move("Hydro Pump", "water", 120, .8, 8, "SPATK", "SPDEF", 0)
+icyWind = Move("Icy Wind", "ice", 55, .95, 24, "SPATK", "SPDEF", 0)
+crunch = Move("Crunch", "dark", 80, 1, 24, "ATK", "DEF", 0)
+stoneEdge = Move("Stone Edge", "rock",  100, .8, 8, "ATK", "DEF", 0)
+bodySlam = Move("Body Slam", "normal", 85, .100, 24, "ATK", "DEF", 0)
+ironHead = Move("Iron Head", "steel", 80, 1, 24, "ATK", "DEF", 0)
+
+
 
 moveNames = {"Dragon Claw": dragonClaw, "Extreme Speed": extremeSpeed,
              "Earthquake": earthquake, "Ice Beam": iceBeam,
              "Fire Blast": fireBlast, "Bug Buzz": bugBuzz,
-             "Hurricane": hurricane, "Quick Attack": quickAttack}
+             "Hurricane": hurricane, "Psychic": psychic,
+             "Scald": scald, "Secret Sword": secretSword,
+             "Hydro Pump": hydroPump, "Icy Wind": icyWind,
+             "Crunch": crunch, "Stone Edge": stoneEdge,
+             "Body Slam": bodySlam, "Iron Head": ironHead}
 
 #Type chart
 resists = {"fire" : {"fire", "grass", "ice", "bug", "steel"},

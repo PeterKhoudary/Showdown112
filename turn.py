@@ -19,6 +19,7 @@ def turn(user, foe):
             if left <= 0:
                 print(f'{defender} has run out of energy to battle! {attacker} wins!')
                 defender.fainted = True
-turn(lance, alder)
+                break
+turn(thugger, blunder)
 
 
