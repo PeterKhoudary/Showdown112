@@ -6,6 +6,7 @@ from damageCalc import *
 def botBattle(user, userTeam, foe, foeTeam):
     userLeft, foeLeft = userTeam[-1], foeTeam[-1]
     while userLeft != 0 and foeLeft != 0:
+        print(f'user mons = {userLeft}, bot mons = {foeLeft}')
         if user.fainted == True:
             user = switch(user, userTeam)
         elif foe.fainted == True:
@@ -19,7 +20,7 @@ def botBattle(user, userTeam, foe, foeTeam):
                 foe = newFoe
             print(f"What will {user.name} do?")
             for moveSlot in user.moveset:
-                print(moveSlot, end = ' ')
+                print(moveSlot[0], end = '   ')
             print()
             userChoice = int(input("Pick attack 0 - 3 or press 4 to switch: ")) #user input
             if userChoice == 4:
@@ -34,7 +35,7 @@ def botBattle(user, userTeam, foe, foeTeam):
                 if switchCheck[1] == False:
                     moveOrder.remove(switchCheck)
             if len(moveOrder) == 2:
-                if moveNames[user.moveset[userChoice]].priority > moveNames[foe.moveset[foeChoice]].priority: #priority check
+                if moveNames[user.moveset[userChoice][0]].priority > moveNames[foe.moveset[foeChoice][0]].priority: #priority check
                     moveOrder[::-1]
             for attackerData in moveOrder:
                 attacker = attackerData[0]
@@ -42,15 +43,18 @@ def botBattle(user, userTeam, foe, foeTeam):
                     continue
                 if attacker == user:
                     defender = foe
-                    defenderLeft = foeLeft
-                    attackerMove = moveNames[user.moveset[userChoice]]
+                    attackerChoice = userChoice
                 else:
                     defender = user
-                    defenderLeft = userLeft
-                    attackerMove = moveNames[foe.moveset[foeChoice]]
-                attackSequence(attacker, defender, attackerMove)
+                    attackerChoice = foeChoice
+                attackSequence(attacker, defender, moveNames[attacker.moveset[attackerChoice][0]])
+                attacker.moveset[attackerChoice][1] -= 1
                 if defender.fainted == True:
-                    defenderLeft -= 1
+                    if defender == foe:
+                        foeTeam[-1] -= 1
+                    else:
+                        userTeam[-1] -= 1
+                userLeft, foeLeft = userTeam[-1], foeTeam[-1]
                 print()
     if userLeft == 0:
         print("AI wins!")
@@ -67,21 +71,22 @@ def switch(currentMon, team):
         if type(teamMon) == int:
             continue
         if teamMon.fainted == True:
-            print(teamMon.name + "(fainted)")
+            print(teamMon.name + " (fainted)")
         else:
             print(teamMon.name)
         teamNameMap[teamMon.name] = teamMon
-    while True:
+    foundMon = False
+    while foundMon == False:
         newMonName = input("Pick a member to switch in: ")
-        while newMonName not in teamNameMap:
-            newMonName = input(f"{newMonName} is not on your team! Pick a member to switch in: ")
         newMon = teamNameMap[newMonName]
-        if newMon.fainted == True:
-            newMonName = input(f"{newMon.name} has no energy left to battle! Pick a member to switch in: ")
+        if newMonName not in teamNameMap:
+            print(f"{newMonName} is not on your team!")
+        elif newMon.fainted == True:
+            print(f"{newMon.name} has no energy left to battle!")
         elif newMon == currentMon:
-            newMonName = print("You can't cancel a switch! Pick a member to switch in: ")
+            print("You can't cancel a switch!")
         else:
-            break
+            foundMon = True
     print(f"{newMon.name} has switched in!")
     return newMon
 

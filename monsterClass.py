@@ -60,7 +60,7 @@ class Monster():
                     moveChoice = input(f"{self.name} can't learn {moveChoice}, try again: ")
                 else:
                     moveChoice = input(f"{self.name} already knows {moveChoice}, try again: ")
-            self.moveset.append(moveChoice)
+            self.moveset.append([moveChoice,moveNames[moveChoice].PP])
         print(self.moveset)
 
 #List of pokemon bases
@@ -91,11 +91,13 @@ alder = Monster(volcBase)
 lance = Monster(dragoniteBase)
 blunder = Monster(keldBase)
 
-assignMoves = [["Stone Edge", "Dragon Claw", "Iron Head", "Body Slam"], 
-               ["Bug Buzz", "Fire Blast" , "Hurricane", "Psychic"], 
-               ["Ice Beam", "Dragon Claw", "Iron Head", "Body Slam"], 
-               ["Scald", "Hydro Pump", "Secret Sword", "Icy Wind"]]
-monList = [thugger, alder, lance, blunder]
-for bruh in range(len(assignMoves)):
-    monList[bruh].moveset = monList[bruh].moveset + assignMoves[bruh]
+testMons = [thugger, alder, lance, blunder]
 
+testMoves = [[['Crunch', 24], ['Stone Edge', 8], ['Dragon Claw', 24], ['Ice Beam', 16]],
+[['Psychic', 16], ['Bug Buzz', 16], ['Fire Blast', 8], ['Hurricane', 16]],
+[['Dragon Claw', 24], ['Extreme Speed', 8], ['Iron Head', 24], ['Earthquake', 16]],
+[['Secret Sword', 16], ['Hydro Pump', 8], ['Icy Wind', 24], ['Scald', 24]]]
+
+for index in range(len(testMons)):
+    testMons[index].moveset = testMoves[index]
+    #print(testMons[index].name, testMons[index].moveset)
