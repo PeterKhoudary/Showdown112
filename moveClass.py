@@ -30,8 +30,6 @@ stoneEdge = Move("Stone Edge", "rock",  100, .8, 8, "ATK", "DEF", 0)
 bodySlam = Move("Body Slam", "normal", 85, .100, 24, "ATK", "DEF", 0)
 ironHead = Move("Iron Head", "steel", 80, 1, 24, "ATK", "DEF", 0)
 
-
-
 moveNames = {"Dragon Claw": dragonClaw, "Extreme Speed": extremeSpeed,
              "Earthquake": earthquake, "Ice Beam": iceBeam,
              "Fire Blast": fireBlast, "Bug Buzz": bugBuzz,

@@ -5,8 +5,8 @@ class Monster():
     level = 100
     IVs = {'HP': 31, 'ATK': 31, 'DEF': 31, 'SPATK': 31, 'SPDEF': 31, 'SPE': 31}
 
-    def __init__(self, name, base):
-        self.name = name
+    def __init__(self, base):
+        self.name = base["name"]
         self.types = base["types"]
         self.type = "-".join(self.types)
         self.baseStats = base["baseStats"]
@@ -64,23 +64,38 @@ class Monster():
         print(self.moveset)
 
 #List of pokemon bases
-dragoniteBase = {"baseStats" : {'HP': 91, 'ATK': 134, 'DEF': 95, 'SPATK': 100, 'SPDEF': 100, 'SPE': 80},
+dragoniteBase = {"name": "Dragonite",
+                 "baseStats" : {'HP': 91, 'ATK': 134, 'DEF': 95, 'SPATK': 100, 'SPDEF': 100, 'SPE': 80},
                  "types": {"dragon", "flying"},
                  "movepool": {"Dragon Claw", "Ice Beam", "Extreme Speed", "Earthquake", "Iron Head", "Body Slam"}}
-volcBase = {"baseStats": {'HP': 85, 'ATK': 60, 'DEF': 65, 'SPATK': 135, 'SPDEF': 105, 'SPE': 100},
+volcBase = {"name": "Volcarona",
+            "baseStats": {'HP': 85, 'ATK': 60, 'DEF': 65, 'SPATK': 135, 'SPDEF': 105, 'SPE': 100},
             "types": {"bug", "fire"},
             "movepool" : {"Fire Blast", "Bug Buzz", "Psychic", "Hurricane"}}
-keldBase = {"baseStats": {'HP': 91, 'ATK': 72, 'DEF': 90, 'SPATK': 129, 'SPDEF': 90, 'SPE': 108},
+keldBase = {"name": "Keldeo",
+            "baseStats": {'HP': 91, 'ATK': 72, 'DEF': 90, 'SPATK': 129, 'SPDEF': 90, 'SPE': 108},
             "types": {"water", "fighting"},
             "movepool" : {"Secret Sword", "Scald", "Hydro Pump", "Icy Wind"}}
-tyrantBase = {"baseStats": {'HP': 100, 'ATK': 134, 'DEF': 110, 'SPATK': 95, 'SPDEF': 100, 'SPE': 61},
-            "types": {"dark", "rock"},
-            "movepool" : {"Stone Edge", "Crunch", "Earthquake", "Iron Head", "Dragon Claw", "Ice Beam"}}
+tyrantBase = {"name": "Tyranitar",
+              "baseStats": {'HP': 100, 'ATK': 134, 'DEF': 110, 'SPATK': 95, 'SPDEF': 100, 'SPE': 61},
+              "types": {"dark", "rock"},
+              "movepool" : {"Stone Edge", "Crunch", "Earthquake", "Iron Head", "Dragon Claw", "Ice Beam", "Body Slam"}}
 
+#Monster names
 
-#lance = Monster("Dragonite", dragoniteBase)
-#alder = Monster("Volcarona", volcBase)
-blunder = Monster("Keldeo", keldBase)
-blunder.setMoves()
-thugger = Monster("Tyranitar", tyrantBase)
-thugger.setMoves()
+monNames = {"Dragonite": dragoniteBase, "Tyranitar": tyrantBase, 
+            "Volcarona": volcBase, "Keldeo": keldBase}
+
+thugger = Monster(tyrantBase)
+alder = Monster(volcBase)
+lance = Monster(dragoniteBase)
+blunder = Monster(keldBase)
+
+assignMoves = [["Stone Edge", "Dragon Claw", "Iron Head", "Body Slam"], 
+               ["Bug Buzz", "Fire Blast" , "Hurricane", "Psychic"], 
+               ["Ice Beam", "Dragon Claw", "Iron Head", "Body Slam"], 
+               ["Scald", "Hydro Pump", "Secret Sword", "Icy Wind"]]
+monList = [thugger, alder, lance, blunder]
+for bruh in range(len(assignMoves)):
+    monList[bruh].moveset = monList[bruh].moveset + assignMoves[bruh]
+
