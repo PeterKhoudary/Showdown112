@@ -42,13 +42,13 @@ def attackSequence(attacker, defender, move):
     if percentAfter <= 0:
         percentAfter = 0
     print(f"{attacker.name}'s {move.name} takes {percentDamage}% of {defender.name}'s HP!")
-    print(f"{defender.name} has {percentAfter}% HP left.")
     if critChance == 1:
         print("A critical hit!")
     if damage < damageBeforeTypes:
         print("It's not very effective...")
     elif damage > damageBeforeTypes:
         print("It's super effective!")
+    print(f"{defender.name} has {percentAfter}% HP left.")
     if defender.currentHP <= 0:
         print(f"{defender.name} fainted!")
         defender.fainted = True

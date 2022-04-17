@@ -88,9 +88,10 @@ def switch(currentMon, team):
         else:
             foundMon = True
     print(f"{newMon.name} has switched in!")
+    print()
     return newMon
 
-userTeam = [thugger, alder, 2]
-foeTeam = [lance, blunder, 2]
+foeTeam = [blunder, thugger, 2]
+userTeam = [lance, alder, 2]
 
 botBattle(userTeam[0], userTeam, foeTeam[0], foeTeam)
