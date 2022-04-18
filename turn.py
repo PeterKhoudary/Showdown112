@@ -10,12 +10,14 @@ def botBattle(user, userTeam, foe, foeTeam):
         if user.fainted == True:
             user = switch(user, userTeam)
         elif foe.fainted == True:
-            foe = switch(foe, foeTeam)
+            foe = switch(foe, foeTeam, True)
         while user.fainted != True and foe.fainted != True:
             userAttacked, foeAttacked = True, True
             foeChoice = random.randint(0, 4) #random AI choice
-            if foeChoice == 4 and foe:
-                newFoe = switch(foe, foeTeam)
+            while foeChoice == 4 and foeTeam[-1] == 1:
+                foeChoice = random.randint(0, 4)
+            if foeChoice == 4:
+                newFoe = switch(foe, foeTeam, True) 
                 foeAttacked = False
                 foe = newFoe
             print(f"What will {user.name} do?")
@@ -23,6 +25,8 @@ def botBattle(user, userTeam, foe, foeTeam):
                 print(moveSlot[0], end = '   ')
             print()
             userChoice = int(input("Pick attack 0 - 3 or press 4 to switch: ")) #user input
+            while userChoice == 4 and userTeam[-1] == 1:
+                userChoice = input("You have no remaining Pokemon! /n Choose an attack: ")
             if userChoice == 4:
                 newUser = switch(user, userTeam) 
                 userAttacked = False
@@ -34,9 +38,11 @@ def botBattle(user, userTeam, foe, foeTeam):
             for switchCheck in moveOrder: #check for switches
                 if switchCheck[1] == False:
                     moveOrder.remove(switchCheck)
-            if len(moveOrder) == 2:
-                if moveNames[user.moveset[userChoice][0]].priority > moveNames[foe.moveset[foeChoice][0]].priority: #priority check
-                    moveOrder[::-1]
+            if len(moveOrder) == 2: #priority check
+                if moveNames[user.moveset[userChoice][0]].priority > moveNames[foe.moveset[foeChoice][0]].priority:
+                    moveOrder = [(user, userAttacked), (foe, foeAttacked)]
+                elif moveNames[foe.moveset[foeChoice][0]].priority > moveNames[user.moveset[userChoice][0]].priority: 
+                    moveOrder = [(foe, foeAttacked), (user, userAttacked)]
             for attackerData in moveOrder:
                 attacker = attackerData[0]
                 if attacker.fainted == True:
@@ -61,10 +67,16 @@ def botBattle(user, userTeam, foe, foeTeam):
     else:
         print("User wins!")
             
-def switch(currentMon, team):
-    if team[-1] == 0:
-        print("You have no Pokemon to switch to!")
-        return currentMon
+def switch(currentMon, team, bot = False):
+    if bot:
+        botChoice = random.randint(0, len(team) - 2)
+        botMon = team[botChoice]
+        while botMon == currentMon or botMon.fainted == True:
+            botChoice = random.randint(0, len(team) - 2)
+            botMon = team[botChoice]
+        print(f"{botMon.name} has switched in!")
+        print()
+        return botMon
     print("Here's your team")
     teamNameMap = dict()
     for teamMon in team:
