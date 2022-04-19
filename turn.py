@@ -2,7 +2,6 @@ from moveClass import *
 from monsterClass import * 
 from damageCalc import *
 
-
 def botBattle(user, userTeam, foe, foeTeam):
     userLeft, foeLeft = userTeam[-1], foeTeam[-1]
     while userLeft != 0 and foeLeft != 0:
@@ -113,4 +112,4 @@ def switch(currentMon, team, bot = False):
 foeTeam = [blunder, thugger, 2]
 userTeam = [lance, alder, 2]
 
-botBattle(userTeam[0], userTeam, foeTeam[0], foeTeam)
+#botBattle(userTeam[0], userTeam, foeTeam[0], foeTeam)

@@ -1,4 +1,9 @@
 from cmu_112_graphics import *
+from turn import *
+from damageCalc import *
+from moveClass import *
+from monsterClass import *
+
 
 ###############################################################################
 #Main App
@@ -6,10 +11,12 @@ def appStarted(app):
     app.pokemonLogo = app.loadImage("pokemonLogo.png")
     app.pokemonLogoStart = app.scaleImage(app.pokemonLogo, 1/4)
     app.mode = "splashScreenMode"
-    app.battleBackground = app.loadImage("space.jpg")
+    app.keldeo = app.loadImage("keldeoFront.png")
+    app.keldeo = app.scaleImage(app.keldeo, 2/3)
+    #app.battleBackground = app.loadImage("starlight.png")
+    #app.battleBackground = app.scaleImage(app.battleBackground, 1/4)
 
 ###############################################################################
-
 #Title Screen
 def splashScreenMode_redrawAll(app, canvas):
     least =  min(app.width, app.height)
@@ -57,8 +64,9 @@ def modeSelect_mousePressed(app, event):
 
 #Battle Mode
 def battleMode_redrawAll(app, canvas):
-    canvas.create_rectangle(0, 0, app.width, app.height, fill = "light blue")
-    canvas.create_image(app.width // 2, app.height * .6, image = ImageTk.PhotoImage(app.battleBackground))
+    canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
+    #canvas.create_image(app.width // 2, app.height // 2, image = ImageTk.PhotoImage(app.battleBackground))
+    canvas.create_image(app.width * .8, app.height * .3, image = ImageTk.PhotoImage(app.keldeo))
 
 def battleMode_keyPressed(app, event):
     if event.key == "Enter":
