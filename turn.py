@@ -13,13 +13,13 @@ def botBattle(user, userTeam, foe, foeTeam):
             foe = switch(foe, foeTeam, True)
         while user.fainted != True and foe.fainted != True:
             userAttacked, foeAttacked = True, True
-            foeChoice = random.randint(0, 4) #random AI choice
-            while foeChoice == 4 and foeTeam[-1] == 1:
-                foeChoice = random.randint(0, 4)
-            if foeChoice == 4:
-                newFoe = switch(foe, foeTeam, True) 
-                foeAttacked = False
-                foe = newFoe
+            # foeChoice = random.randint(0, 4) #random AI choice
+            # while foeChoice == 4 and foeTeam[-1] == 1:
+            #     foeChoice = random.randint(0, 4)
+            # if foeChoice == 4:
+            #     newFoe = switch(foe, foeTeam, True) 
+            #     foeAttacked = False
+            #     foe = newFoe
             print(f"What will {user.name} do?")
             for moveSlot in user.moveset:
                 print(moveSlot[0], end = '   ')
@@ -31,6 +31,13 @@ def botBattle(user, userTeam, foe, foeTeam):
                 newUser = switch(user, userTeam) 
                 userAttacked = False
                 user = newUser
+            foeChoice = random.randint(0, 4) #random AI choice
+            while foeChoice == 4 and foeTeam[-1] == 1:
+                foeChoice = random.randint(0, 4)
+            if foeChoice == 4:
+                newFoe = switch(foe, foeTeam, True) 
+                foeAttacked = False
+                foe = newFoe
             if foe.finalStats["SPE"] > user.finalStats["SPE"]:
                 moveOrder = [(foe, foeAttacked), (user, userAttacked)]
             else:
