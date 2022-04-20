@@ -105,11 +105,13 @@ def switch(currentMon, team, bot = False):
             print("You can't cancel a switch!")
         else:
             foundMon = True
+    team.remove(currentMon)
+    team.insert(0, currentMon)
     print(f"{newMon.name} has switched in!")
     print()
     return newMon
 
-foeTeam = [blunder, thugger, 2]
-userTeam = [lance, alder, 2]
+foeTeam = [thugger, blunder, 2]
+userTeam = [alder, lance, 2]
 
 #botBattle(userTeam[0], userTeam, foeTeam[0], foeTeam)
