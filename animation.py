@@ -69,45 +69,64 @@ def modeSelect_mousePressed(app, event):
 #Battle Mode
 def battleMode_redrawAll(app, canvas):
     canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
-    canvas.create_image(app.width // 2, app.height // 3, image = ImageTk.PhotoImage(app.battleBackground))
+    canvas.create_image(app.width // 2, app.height * .275, image = ImageTk.PhotoImage(app.battleBackground))
     drawPokemon(app, canvas)
     drawMoves(app, canvas)
+    drawHUD(app, canvas)
+    drawChat(app, canvas)
+
+def drawChat(app, canvas, message = "bruh"):
+    least = min(app.width, app.height)
+    canvas.create_text(app.width * .01, app.height * .78, text = f"{message}", anchor = NW,
+                            fill = "white", font = f"Helvetica {int(.069 * least)} bold")
+
+def drawHUD(app, canvas):
+    barLength = app.width * .4
+    barWidth = app.height * .05
+    userFill, foeFill = "green", "green"
+    userPercent = userTeam[0].currentHP / userTeam[0].finalStats["HP"]
+    foePercent = foeTeam[0].currentHP / foeTeam[0].finalStats["HP"]
+    if userPercent <= .5:
+        if userPercent <= .2:
+            userFill = "red"
+        else:
+            userFill = "yellow"
+    if foePercent <= .5:
+        if foePercent <= .2:
+            foeFill = "red"
+        else:
+            foeFill = "yellow"
+    canvas.create_rectangle(app.width * .01, app. height * .05, app.width * .01 + barLength, app.height * .05 + barWidth, fill = "white")
+    canvas.create_rectangle(app.width * .01, app. height * .05, app.width * .01 + barLength * userPercent, app.height * .05 + barWidth, fill = userFill)
+    canvas.create_rectangle(app.width * .05, app. height * .2, app.width * .05 + barLength, app.height * .2 + barWidth, fill = "white")
+    canvas.create_rectangle(app.width * .05, app. height * .2, app.width * .05 + barLength * foePercent, app.height * .2 + barWidth, fill = foeFill)
     
 def drawPokemon(app, canvas):
-    canvas.create_image(app.width * .75, app.height * .25, image = ImageTk.PhotoImage(app.monSprites[foeTeam[0].name]["front"]))
-    canvas.create_image(app.width * .3, app.height * .6, image = ImageTk.PhotoImage(app.monSprites[userTeam[0].name]["back"]))
+    canvas.create_image(app.width * .75, app.height * .225, image = ImageTk.PhotoImage(app.monSprites[foeTeam[0].name]["front"]))
+    canvas.create_image(app.width * .3, app.height * .542, image = ImageTk.PhotoImage(app.monSprites[userTeam[0].name]["back"]))
 
 def drawMoves(app, canvas):
     least =  min(app.width, app.height)
     moveset = userTeam[0].moveset
-    slot = 0
-    for moveSlot in moveset:
+    for moveSlot in range(len(moveset)):
         width = app.width // 5
-        move = moveNames[moveSlot[0]]
+        move = moveNames[moveset[moveSlot][0]]
         moveColor = moveColors[move.type]
         if move.type == "dark":
             textColor = "white"
         else:
             textColor = "Black"
-        canvas.create_rectangle(width * slot, app. height * .83, width * slot + width, app.height, fill = moveColor)
-        if len(move.name.split(" ")) == 2:
-            first = move.name.split(" ")[0]
-            second = move.name.split(" ")[1]
-            canvas.create_text(width * slot + width / 2, app.height * .875, text = f"{first}",
-                            fill = textColor, font = f"Helvetica {int(.04 * least)} bold")
-            canvas.create_text(width * slot + width / 2, app.height * .95, text = f"{second}",
-                            fill = textColor, font = f"Helvetica {int(.04 * least)} bold")
-        else:
-            canvas.create_text(width * slot + width / 2, app.height * .915, text = f"{move.name}",
-                            fill = textColor, font = f"Helvetica {int(.04 * least)} bold")
-        slot += 1
-    canvas.create_rectangle(app.width - width, app. height * .83, app.width, app.height, fill = "white")
-    canvas.create_text(width * slot + width / 2, app.height * .915, text = "Switch",
-                            fill = "black", font = f"Helvetica {int(.04 * least)} bold")
+        canvas.create_rectangle(width * moveSlot, app. height * .9, width * moveSlot + width, app.height, fill = moveColor)
+        canvas.create_text(width * moveSlot + width / 2, app.height * .93, text = f"{move.name}",
+                            fill = textColor, font = f"Helvetica {int(.03 * least)} bold")
+        canvas.create_text(width * moveSlot + width / 2, app.height * .97, text = f"{moveset[moveSlot][1]}/{moveNames[move.name].PP}",
+                            fill = textColor, font = f"Helvetica {int(.02 * least)} bold")
+    canvas.create_rectangle(app.width - width, app. height * .9, app.width, app.height, fill = "white")
+    canvas.create_text(width * 4 + width / 2, app.height * .95, text = "Switch",
+                            fill = "black", font = f"Helvetica {int(.03 * least)} bold")
 
 def battleMode_keyPressed(app, event):
     if event.key == "Enter":
         app.mode = "modeSelect"
-
 
 runApp(width = 1200, height = 700)
