@@ -12,13 +12,15 @@ def appStarted(app):
     app.mode = "splashScreenMode"
     app.battleBackground = app.loadImage("starlight.png")
     app.battleBackground = app.scaleImage(app.battleBackground, 1/4)
+    app.message = "bruh"
     app.monSprites = dict()
+    app.monIcons = dict()
     for mon in monNames:
         app.monSprites[mon] = dict()
         app.monSprites[mon]["front"] = app.loadImage(mon.upper() + "FRONT.png")
-        app.monSprites[mon]["front"] = app.scaleImage(app.monSprites[mon]["front"], 2)
         app.monSprites[mon]["back"] = app.loadImage(mon.upper() + "BACK.png")
-        app.monSprites[mon]["back"] = app.scaleImage(app.monSprites[mon]["back"], 2)
+        for side in ["front", "back"]:
+            app.monSprites[mon][side] = app.scaleImage(app.monSprites[mon][side], 2)
 
 ###############################################################################
 #Title Screen
@@ -63,6 +65,7 @@ def modeSelect_mousePressed(app, event):
     if leftBound < event.x < rightBound:
         if .7 * app.height < event.y < .9 * app.height:
             app.mode = "battleMode"
+            botBattle(userTeam[0], userTeam, foeTeam[0], foeTeam)
             
 ###############################################################################
 
@@ -71,13 +74,14 @@ def battleMode_redrawAll(app, canvas):
     canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
     canvas.create_image(app.width // 2, app.height * .275, image = ImageTk.PhotoImage(app.battleBackground))
     drawPokemon(app, canvas)
-    drawMoves(app, canvas)
+    #drawMoves(app, canvas)
     drawHUD(app, canvas)
     drawChat(app, canvas)
+    drawSwitch(app, canvas)
 
-def drawChat(app, canvas, message = "bruh"):
+def drawChat(app, canvas):
     least = min(app.width, app.height)
-    canvas.create_text(app.width * .01, app.height * .78, text = f"{message}", anchor = NW,
+    canvas.create_text(app.width * .01, app.height * .78, text = f"{app.message}", anchor = NW,
                             fill = "white", font = f"Helvetica {int(.069 * least)} bold")
 
 def drawHUD(app, canvas):
@@ -102,7 +106,7 @@ def drawHUD(app, canvas):
     canvas.create_rectangle(app.width * .05, app. height * .2, app.width * .05 + barLength * foePercent, app.height * .2 + barWidth, fill = foeFill)
     
 def drawPokemon(app, canvas):
-    canvas.create_image(app.width * .75, app.height * .225, image = ImageTk.PhotoImage(app.monSprites[foeTeam[0].name]["front"]))
+    canvas.create_image(app.width * .74, app.height * .223, image = ImageTk.PhotoImage(app.monSprites[foeTeam[0].name]["front"]))
     canvas.create_image(app.width * .3, app.height * .542, image = ImageTk.PhotoImage(app.monSprites[userTeam[0].name]["back"]))
 
 def drawMoves(app, canvas):
@@ -125,8 +129,37 @@ def drawMoves(app, canvas):
     canvas.create_text(width * 4 + width / 2, app.height * .95, text = "Switch",
                             fill = "black", font = f"Helvetica {int(.03 * least)} bold")
 
+def drawSwitch(app, canvas):
+    width = app.width // 5
+    for monSlot in range(len(userTeam) - 1):
+        if userTeam[monSlot].fainted == True:
+            fill = "red"
+        else:
+            fill = "white"
+        canvas.create_rectangle(width * monSlot, app. height * .9, width * monSlot + width, app.height, fill = "white")
+        canvas.create_image (width * (.5 +  monSlot), app.height * .95, image = ImageTk.PhotoImage(app.scaleImage(app.monSprites[userTeam[monSlot].name]["front"], 1/5)))
+
+
 def battleMode_keyPressed(app, event):
     if event.key == "Enter":
         app.mode = "modeSelect"
+
+def battleMode_mousePressed(app, event):
+    userChoice = None
+    width = app.width // 5
+    if event.y >= .9 * app.height:
+        if 0 < event.x <= width:
+            userChoice = 0
+        elif width < event.x <= 2 * width:
+            userChoice = 1
+        elif 2 * width < event.x <= 3 * width:
+            userChoice = 2
+        elif 3 * width < event.x <= 4 * width:
+            userChoice = 3
+        else:
+            userChoice = 4
+        print(userChoice)
+
+
 
 runApp(width = 1200, height = 700)

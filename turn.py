@@ -1,6 +1,8 @@
 from moveClass import *
 from monsterClass import * 
 from damageCalc import *
+from animation import *
+from cmu_112_graphics import *
 import time 
 
 def botBattle(user, userTeam, foe, foeTeam):
@@ -20,10 +22,10 @@ def botBattle(user, userTeam, foe, foeTeam):
             #     newFoe = switch(foe, foeTeam, True) 
             #     foeAttacked = False
             #     foe = newFoe
-            print(f"What will {user.name} do?")
-            for moveSlot in user.moveset:
-                print(moveSlot[0], end = '   ')
-            print()
+            app.message = f"What will {user.name} do?"
+            # for moveSlot in user.moveset:
+            #     print(moveSlot[0], end = '   ')
+            # print()
             userChoice = int(input("Pick attack 0 - 3 or press 4 to switch: ")) #user input
             while userChoice == 4 and userTeam[-1] == 1:
                 userChoice = input("You have no remaining Pokemon! /n Choose an attack: ")
@@ -112,7 +114,10 @@ def switch(currentMon, team, bot = False):
     print()
     return newMon
 
-foeTeam = [thugger, lance, 2]
-userTeam = [alder, blunder, 2]
+foeTeam = [lance, thugger, 2]
+userTeam = [blunder, alder, 2]
+
+lance.currentHP = 15
+blunder.currentHP = 100
 
 #botBattle(userTeam[0], userTeam, foeTeam[0], foeTeam)
