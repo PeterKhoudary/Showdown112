@@ -3,7 +3,6 @@ from turn import *
 from damageCalc import *
 from moveClass import *
 from monsterClass import *
-import asyncio
 
 ###############################################################################
 #Main App
@@ -21,9 +20,10 @@ def appStarted(app):
             app.monSprites[mon][side] = app.scaleImage(app.monSprites[mon][side], 2)
     app.switch = False
     app.gameOver = False
-    app.message = ""
-    app.waitingForInput = False
+    app.message = f'What will {userTeam[0]} do?'
     app.userChoice = None
+    app.turnCount = 0
+    app.winQuote = ''
 
 ###############################################################################
 #Title Screen
@@ -68,7 +68,6 @@ def modeSelect_mousePressed(app, event):
     if leftBound < event.x < rightBound:
         if .7 * app.height < event.y < .9 * app.height:
             app.mode = "battleMode"
-            turn(app, userTeam[0], userTeam, foeTeam[0], foeTeam)
             
 ###############################################################################
 
@@ -78,20 +77,21 @@ def battleMode_redrawAll(app, canvas):
     canvas.create_image(app.width // 2, app.height * .275, image = ImageTk.PhotoImage(app.battleBackground))
     drawPokemon(app, canvas)
     drawHUD(app, canvas)
-    drawChat(app, canvas)
     if app.switch == True:
         drawSwitch(app, canvas)
     else:
         drawMoves(app, canvas)
-    
+    drawChat(app, canvas)
 
 def battleMode_timerFired(app):
-    if app.gameOver == True:
+    if app.gameOver:
         if userTeam[-1] == 0:
-            app.message = "AI wins!"
+            app.winner = foeTeam
+            app.winQuote = "AI wins!"
         else:
-            app.message = "Player wins!"
-        
+            app.winner = userTeam
+            app.winQuote = "Player wins!"
+            
 def battleMode_keyPressed(app, event):
     #if event.key == "r":
         #battleRematch(app)
@@ -101,7 +101,10 @@ def battleMode_keyPressed(app, event):
 def drawChat(app, canvas):
     least = min(app.width, app.height)
     canvas.create_text(app.width * .01, app.height * .78, text = f"{app.message}", anchor = NW,
-                            fill = "white", font = f"Helvetica {int(.069 * least)} bold")
+                            fill = "white", font = f"Helvetica {int(.01 * least)} bold")
+    if app.gameOver:
+        canvas.create_text(app.width * .5, app.height * .25, text = f"{app.winQuote}",
+                            fill = "white", font = f"Times {int(.25 * least)} bold")
 
 def drawHUD(app, canvas):
     barLength = app.width * .4
@@ -160,48 +163,66 @@ def drawSwitch(app, canvas):
         canvas.create_rectangle(width * monSlot, app. height * .9, width * monSlot + width, app.height, fill = fill)
         canvas.create_image (width * (.5 +  monSlot), app.height * .95, image = ImageTk.PhotoImage(app.scaleImage(app.monSprites[userTeam[monSlot].name]["front"], 1/5)))
 
-def turn(app, user, userTeam, foe, foeTeam):
+def battleMode_mousePressed(app, event):
+    if app.gameOver:
+        return
+    if event.y >= .9 * app.height:
+        if app.switch == True:
+            width = app.width // 6
+            if 0 < event.x <= width:
+                app.userChoice = 0
+            elif width < event.x <= 2 * width:
+                app.userChoice = 1
+            elif 2 * width < event.x <= 3 * width:
+                app.userChoice = 2
+            elif 3 * width < event.x <= 4 * width:
+                app.userChoice = 3
+            elif 4 * width < event.x <= 5 * width:
+                app.userChoice = 4
+            else:
+                app.userChoice = 5
+            #switch(app, userTeam)
+        else:
+            width = app.width // 5
+            if 0 < event.x <= width:
+                app.userChoice = 0
+            elif width < event.x <= 2 * width:
+                app.userChoice = 1
+            elif 2 * width < event.x <= 3 * width:
+                app.userChoice = 2
+            elif 3 * width < event.x <= 4 * width:
+                app.userChoice = 3
+            else:
+                app.userChoice = 4
+        turn(app,userTeam, foeTeam)
+
+def turn(app, userTeam, foeTeam):
+    user, foe = userTeam[0], foeTeam[0]
     userChoice = app.userChoice
     userLeft, foeLeft = userTeam[-1], foeTeam[-1]
-    while userLeft > 0 and foeLeft > 0:
+    if userLeft > 0 and foeLeft > 0:
+        app.turnCount += 1
         print(f'user mons = {userLeft}, bot mons = {foeLeft}')
-        if user.fainted == True:
-            app.switch = True
-            newUser = switch(app, user, userTeam)
-            user = newUser
-        if foe.fainted == True:
-            newFoe = switch(app, foe, foeTeam, True)
-            foe = newFoe
         userLeft, foeLeft = userTeam[-1], foeTeam[-1]
         userAttacked, foeAttacked = True, True
-        # foeChoice = random.randint(0, 4) #random AI choice
-        # while foeChoice == 4 and foeTeam[-1] == 1:
-        #     foeChoice = random.randint(0, 4)
-        # if foeChoice == 4:
-        #     newFoe = switch(foe, foeTeam, True) 
-        #     foeAttacked = False
-        #     foe = newFoe
-        app.message = f"What will {user.name} do?"
-        userChoice = int(app.getUserInput("Enter a moveslot 0 - 3, or 4 to switch"))
+        # placeholder for minmax
         if userChoice == 4:
             if userTeam[-1] == 1:
                 while userChoice == 4:
                     app.message = "You have no other remaining pokemon! Pick another"
-                    userChoice = int(app.getUserInput("Enter a moveslot 0 - 3"))
             else:
-                app.switch = True
-                newUser = switch(app, user, userTeam) 
+                switch(app, userTeam) 
+                user = userTeam[0]
                 userAttacked = False
-                user = newUser
         foeChoice = random.randint(0, 4) #random AI choice
         if foeChoice == 4:
             if foeTeam[-1] == 1:
                 while foeChoice == 4:
                     foeChoice = random.randint(0, 4)
             else:
-                newFoe = switch(app, foe, foeTeam, True) 
+                switch(app, foeTeam, True) 
+                foe = foeTeam[0]
                 foeAttacked = False
-                foe = newFoe
         if foe.finalStats["SPE"] > user.finalStats["SPE"]:
             moveOrder = [(foe, foeAttacked), (user, userAttacked)]
         else:
@@ -214,6 +235,7 @@ def turn(app, user, userTeam, foe, foeTeam):
                 moveOrder = [(user, userAttacked), (foe, foeAttacked)]
             elif moveNames[foe.moveset[foeChoice][0]].priority > moveNames[user.moveset[userChoice][0]].priority: 
                 moveOrder = [(foe, foeAttacked), (user, userAttacked)]
+        app.message = f'Turn {app.turnCount}\n'
         for attackerData in moveOrder:
             attacker = attackerData[0]
             if attacker.fainted == True:
@@ -231,16 +253,18 @@ def turn(app, user, userTeam, foe, foeTeam):
                     foeTeam[-1] -= 1
                 else:
                     userTeam[-1] -= 1
-            userLeft, foeLeft = userTeam[-1], foeTeam[-1]
-    print(userTeam[-1], foeTeam[-1])
-    app.gameOver = True
+        if user.fainted == True:
+            app.switch = True
+        if foe.fainted == True:
+            switch(app, foeTeam, True)
+    else:
+        app.gameOver = True
 
 def attackSequence(app, attacker, defender, move):
-    app.message = f"{attacker.name} used {move.name}"
     missThreshold = move.accuracy * 100
     hitCheck = random.randint(1, 100)
     if hitCheck > missThreshold:
-        app.message = f"{attacker.name}'s attack missed!"
+        app.message += f"{attacker.name}'s {move.name} missed!\n"
         return
     percentBefore = round(defender.currentHP / defender.finalStats["HP"] * 100, 1)
     damage = (((((2 * attacker.level) / 5) + 2) * move.power * (attacker.finalStats[move.uses] / defender.finalStats[move.hits])) / 50) + 2
@@ -258,7 +282,7 @@ def attackSequence(app, attacker, defender, move):
         elif move.type in weaknesses[defenseType]:
             damage *= 2
         elif move.type in immunities[defenseType]:
-            app.message = f'{defenseType} types are immune to {move}'
+            app.message += f'{defenseType} types are immune to {move} \n'
             return 
     defender.currentHP -= damage
     percentDamage = round(damage / defender.finalStats["HP"] * 100, 1)
@@ -267,21 +291,25 @@ def attackSequence(app, attacker, defender, move):
     percentAfter = round(defender.currentHP / defender.finalStats["HP"] * 100, 1)
     if percentAfter <= 0:
         percentAfter = 0
-    app.message = f"{attacker.name}'s {move.name} takes {percentDamage}% of {defender.name}'s HP!"
+    app.message += f"{attacker.name}'s {move.name} takes {percentDamage}% of {defender.name}'s HP! "
     if critChance == 1:
-        app.message = "A critical hit!"
+        app.message += "A critical hit! "
     if damage < damageBeforeTypes:
-        app.message = "It's not very effective..."
+        app.message += "It's not very effective..."
     elif damage > damageBeforeTypes:
-        app.message = "It's super effective!"
-    app.message = f"{defender.name} has {percentAfter}% HP left."
+        app.message += "It's super effective!"
+    app.message += f" {defender.name} has {percentAfter}% HP left.\n"
     if defender.currentHP <= 0:
         defender.currentHP = 0
-        app.message = f"{defender.name} fainted!"
+        app.message += f"{defender.name} fainted!\n"
         defender.fainted = True
 
-def switch(app, currentMon, team, bot = False):
-    if bot:
+def switch(app, team, bot = False):
+    currentMon = team[0]
+    if team[-1] == 0:
+        app.gameOver = True
+        return
+    elif bot:
         botChoice = random.randint(0, len(team) - 2)
         botMon = team[botChoice]
         while botMon == currentMon or botMon.fainted == True:
@@ -289,22 +317,14 @@ def switch(app, currentMon, team, bot = False):
             botMon = team[botChoice]
         team.remove(botMon)
         team.insert(0, botMon)  
-        app.message = f"{botMon.name} has switched in!"
-        return botMon
+        app.message += f"{botMon.name} has switched in!"
+        return 
+    app.switch = True
     app.message = "Here's your team"
-    # teamNameMap = dict()
-    # for teamMon in team:
-    #     if type(teamMon) == int:
-    #         continue
-    #     if teamMon.fainted == True:
-    #         app.message = teamMon.name + " (fainted)"
-    #     else:
-    #         app.message = teamMon.name
-    #     teamNameMap[teamMon.name] = teamMon
     foundMon = False
     while foundMon == False:
-        teamSlot = int(app.getUserInput("Pick a member to switch in: "))
-        newMon = team[teamSlot]
+        app.message += "Here's your team"
+        newMon = team[app.userChoice]
         if newMon.fainted == True:
             app.message = f"{newMon.name} has no energy left to battle!"
         elif newMon == currentMon:
@@ -313,38 +333,8 @@ def switch(app, currentMon, team, bot = False):
             foundMon = True
     team.remove(newMon)
     team.insert(0, newMon)
-    app.message = f"{newMon.name} has switched in!"
+    app.message += f"{newMon.name} has switched in!"
     app.switch = False
-    return newMon
-
-def battleMode_mousePressed(app, event):
-    if event.y >= .9 * app.height:
-        if app.switch == True:
-            width = app.width // 6
-            if 0 < event.x <= width:
-                app.userChoice = 0
-            elif width < event.x <= 2 * width:
-                app.userChoice = 1
-            elif 2 * width < event.x <= 3 * width:
-                app.userChoice = 2
-            elif 3 * width < event.x <= 4 * width:
-                app.userChoice = 3
-            elif 4 * width < event.x <= 5 * width:
-                app.userChoice = 4
-            else:
-                app.userChoice = 5
-        else:
-            width = app.width // 5
-            if 0 < event.x <= width:
-                app.userChoice = 0
-            elif width < event.x <= 2 * width:
-                app.userChoice = 1
-            elif 2 * width < event.x <= 3 * width:
-                app.userChoice = 2
-            elif 3 * width < event.x <= 4 * width:
-                app.userChoice = 3
-            else:
-                app.userChoice = 4
-    print(app.userChoice)
+    return
 
 runApp(width = 1200, height = 700)
