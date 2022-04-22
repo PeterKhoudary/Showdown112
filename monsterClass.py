@@ -5,18 +5,23 @@ class Monster():
     level = 100
     IVs = {'HP': 31, 'ATK': 31, 'DEF': 31, 'SPATK': 31, 'SPDEF': 31, 'SPE': 31}
 
-    def __init__(self, base):
+    def __init__(self, base, EVs = dict(), moveset = []):
         self.name = base["name"]
         self.types = base["types"]
         self.type = "-".join(self.types)
         self.baseStats = base["baseStats"]
         self.movepool = base["movepool"]
-        self.moveset = [] 
-        self.EVs = dict()
-        self.finalStats = dict()
-        for stat in self.baseStats:
-            self.EVs[stat] = 0
-            self.finalStats[stat] = self.finalStat(stat)
+        if moveset != []:
+            self.moveset = moveset
+        self.finalStats = dict() 
+        if EVs != dict():
+            self.EVs = EVs
+            for stat in self.baseStats:
+                self.finalStats[stat] = self.finalStat(stat)
+        else:
+            for stat in self.baseStats:
+                self.EVs[stat] = 0
+                self.finalStats[stat] = self.finalStat(stat)
         self.fainted = False
 
     def finalStat(self, stat):
@@ -62,6 +67,7 @@ class Monster():
                     moveChoice = input(f"{self.name} already knows {moveChoice}, try again: ")
             self.moveset.append([moveChoice,moveNames[moveChoice].PP])
         print(self.moveset)
+    
 
 #List of pokemon bases
 dragoniteBase = {"name": "Dragonite",
@@ -82,22 +88,26 @@ tyrantBase = {"name": "Tyranitar",
               "movepool" : {"Stone Edge", "Crunch", "Earthquake", "Iron Head", "Dragon Claw", "Ice Beam", "Body Slam"}}
 
 #Monster names
-
 monNames = {"Dragonite": dragoniteBase, "Tyranitar": tyrantBase, 
             "Volcarona": volcBase, "Keldeo": keldBase}
 
-thugger = Monster(tyrantBase)
-alder = Monster(volcBase)
-lance = Monster(dragoniteBase)
-blunder = Monster(keldBase)
+
+#Test Monsters
+thugger = Monster(tyrantBase, 
+                  {'HP': 252, 'ATK': 252, 'DEF': 0, 'SPATK': 4, 'SPDEF': 0, 'SPE': 0}, 
+                  [['Crunch', 24], ['Stone Edge', 8], ['Dragon Claw', 24], ['Ice Beam', 16]])
+alder = Monster(volcBase, 
+                {'HP': 0, 'ATK': 0, 'DEF': 0, 'SPATK': 252, 'SPDEF': 4, 'SPE': 252}, 
+                [['Psychic', 16], ['Bug Buzz', 16], ['Fire Blast', 8], ['Hurricane', 16]])
+lance = Monster(dragoniteBase, 
+                {'HP': 4, 'ATK': 252, 'DEF': 0, 'SPATK': 0, 'SPDEF': 0, 'SPE': 252}, 
+                [['Dragon Claw', 24], ['Extreme Speed', 8], ['Iron Head', 24], ['Earthquake', 16]])
+blunder = Monster(keldBase, 
+                  {'HP': 4, 'ATK': 0, 'DEF': 0, 'SPATK': 252, 'SPDEF': 0, 'SPE': 252}, 
+                  [['Secret Sword', 16], ['Hydro Pump', 8], ['Icy Wind', 24], ['Scald', 24]])
+
+
 
 testMons = [thugger, alder, lance, blunder]
-
-testMoves = [[['Crunch', 24], ['Stone Edge', 8], ['Dragon Claw', 24], ['Ice Beam', 16]],
-[['Psychic', 16], ['Bug Buzz', 16], ['Fire Blast', 8], ['Hurricane', 16]],
-[['Dragon Claw', 24], ['Extreme Speed', 8], ['Iron Head', 24], ['Earthquake', 16]],
-[['Secret Sword', 16], ['Hydro Pump', 8], ['Icy Wind', 24], ['Scald', 24]]]
-
-for index in range(len(testMons)):
-    testMons[index].moveset = testMoves[index]
-    #print(testMons[index].name, testMons[index].moveset)
+# for mon in testMons:
+#     print(mon.name, mon.finalStats, mon.moveset)

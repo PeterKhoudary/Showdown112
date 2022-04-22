@@ -1,7 +1,6 @@
 from moveClass import *
 from monsterClass import * 
 from damageCalc import *
-from animation import *
 from cmu_112_graphics import *
 import time 
 
@@ -15,17 +14,17 @@ def botBattle(user, userTeam, foe, foeTeam):
             foe = switch(foe, foeTeam, True)
         while user.fainted != True and foe.fainted != True:
             userAttacked, foeAttacked = True, True
-            # foeChoice = random.randint(0, 4) #random AI choice
-            # while foeChoice == 4 and foeTeam[-1] == 1:
-            #     foeChoice = random.randint(0, 4)
+            foeChoice = random.randint(0, 4) #random AI choice
+            while foeChoice == 4 and foeTeam[-1] == 1:
+                foeChoice = random.randint(0, 4)
             # if foeChoice == 4:
             #     newFoe = switch(foe, foeTeam, True) 
             #     foeAttacked = False
             #     foe = newFoe
-            app.message = f"What will {user.name} do?"
-            # for moveSlot in user.moveset:
-            #     print(moveSlot[0], end = '   ')
-            # print()
+            print(f"What will {user.name} do?")
+            for moveSlot in user.moveset:
+                print(moveSlot[0], end = '   ')
+            print()
             userChoice = int(input("Pick attack 0 - 3 or press 4 to switch: ")) #user input
             while userChoice == 4 and userTeam[-1] == 1:
                 userChoice = input("You have no remaining Pokemon! /n Choose an attack: ")
@@ -76,7 +75,7 @@ def botBattle(user, userTeam, foe, foeTeam):
     else:
         print("User wins!")
             
-def switch(currentMon, team, bot = False):
+def terminalSwitch(currentMon, team, bot = False):
     if bot:
         botChoice = random.randint(0, len(team) - 2)
         botMon = team[botChoice]
@@ -116,8 +115,5 @@ def switch(currentMon, team, bot = False):
 
 foeTeam = [lance, thugger, 2]
 userTeam = [blunder, alder, 2]
-
-lance.currentHP = 15
-blunder.currentHP = 100
 
 #botBattle(userTeam[0], userTeam, foeTeam[0], foeTeam)
