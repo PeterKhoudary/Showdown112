@@ -111,3 +111,11 @@ blunder = Monster(keldBase,
 testMons = [thugger, alder, lance, blunder]
 # for mon in testMons:
 #     print(mon.name, mon.finalStats, mon.moveset)
+
+def teamRefresh(userTeam, foeTeam):
+    for team in [userTeam, foeTeam]:
+        for monSlot in range(len(userTeam) - 1):
+            team[monSlot].currentHP = team[monSlot].finalStats["HP"]
+            team[monSlot].fainted = False
+            for moveSlot in team[monSlot].moveset:
+                moveSlot[1] = moveNames[moveSlot[0]].PP

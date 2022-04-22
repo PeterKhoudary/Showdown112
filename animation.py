@@ -21,7 +21,9 @@ def appStarted(app):
     app.switch = False
     app.gameOver = False
     app.message = f'What will {userTeam[0]} do?'
-    app.userChoice = None
+    app.attackChoice = 0
+    app.switchChoice = 0
+    app.userAttacked = True
     app.turnCount = 0
     app.winQuote = ''
 
@@ -77,10 +79,7 @@ def battleMode_redrawAll(app, canvas):
     canvas.create_image(app.width // 2, app.height * .275, image = ImageTk.PhotoImage(app.battleBackground))
     drawPokemon(app, canvas)
     drawHUD(app, canvas)
-    if app.switch == True:
-        drawSwitch(app, canvas)
-    else:
-        drawMoves(app, canvas)
+    drawMoves(app, canvas)
     drawChat(app, canvas)
 
 def battleMode_timerFired(app):
@@ -93,18 +92,21 @@ def battleMode_timerFired(app):
             app.winQuote = "Player wins!"
             
 def battleMode_keyPressed(app, event):
-    #if event.key == "r":
-        #battleRematch(app)
+    if event.key == "r":
+        app.gameOver = False
+        teamRefresh(userTeam, foeTeam)
+        app.message = f'What will {userTeam[0]} do?'
+        app.turnCount = 0
     if event.key == "enter":
         app.mode == "splashScreenMode"
 
 def drawChat(app, canvas):
     least = min(app.width, app.height)
     canvas.create_text(app.width * .01, app.height * .78, text = f"{app.message}", anchor = NW,
-                            fill = "white", font = f"Helvetica {int(.01 * least)} bold")
+                            fill = "white", font = f"Helvetica {int(.025 * least)} bold")
     if app.gameOver:
         canvas.create_text(app.width * .5, app.height * .25, text = f"{app.winQuote}",
-                            fill = "white", font = f"Times {int(.25 * least)} bold")
+                            fill = "orange", font = f"Times {int(.225 * least)} bold")
 
 def drawHUD(app, canvas):
     barLength = app.width * .4
@@ -153,52 +155,31 @@ def drawMoves(app, canvas):
     canvas.create_text(width * 4 + width / 2, app.height * .95, text = "Switch",
                             fill = "black", font = f"Helvetica {int(.03 * least)} bold")
 
-def drawSwitch(app, canvas):
-    width = app.width // 5
-    for monSlot in range(len(userTeam) - 1):
-        if userTeam[monSlot].fainted == True:
-            fill = "red"
-        else:
-            fill = "white"
-        canvas.create_rectangle(width * monSlot, app. height * .9, width * monSlot + width, app.height, fill = fill)
-        canvas.create_image (width * (.5 +  monSlot), app.height * .95, image = ImageTk.PhotoImage(app.scaleImage(app.monSprites[userTeam[monSlot].name]["front"], 1/5)))
-
 def battleMode_mousePressed(app, event):
     if app.gameOver:
         return
-    if event.y >= .9 * app.height:
-        if app.switch == True:
-            width = app.width // 6
-            if 0 < event.x <= width:
-                app.userChoice = 0
-            elif width < event.x <= 2 * width:
-                app.userChoice = 1
-            elif 2 * width < event.x <= 3 * width:
-                app.userChoice = 2
-            elif 3 * width < event.x <= 4 * width:
-                app.userChoice = 3
-            elif 4 * width < event.x <= 5 * width:
-                app.userChoice = 4
-            else:
-                app.userChoice = 5
-            #switch(app, userTeam)
-        else:
+    else:
+        if event.y > .9 * app.height:
             width = app.width // 5
-            if 0 < event.x <= width:
-                app.userChoice = 0
-            elif width < event.x <= 2 * width:
-                app.userChoice = 1
-            elif 2 * width < event.x <= 3 * width:
-                app.userChoice = 2
-            elif 3 * width < event.x <= 4 * width:
-                app.userChoice = 3
+            if event. x <= 4 * width:
+                if 0 < event.x <= width:
+                    app.attackChoice = 0
+                    turn(app, userTeam, foeTeam)
+                elif width < event.x <= 2 * width:
+                    app.attackChoice = 1
+                    turn(app, userTeam, foeTeam)
+                elif 2 * width < event.x <= 3 * width:
+                    app.attackChoice = 2
+                    turn(app, userTeam, foeTeam)
+                elif 3 * width < event.x <= 4 * width:
+                    app.attackChoice = 3
+                    turn(app, userTeam, foeTeam)
             else:
-                app.userChoice = 4
-        turn(app,userTeam, foeTeam)
-
+                app.mode = "switchMode"
+            
 def turn(app, userTeam, foeTeam):
     user, foe = userTeam[0], foeTeam[0]
-    userChoice = app.userChoice
+    userChoice = app.attackChoice
     userLeft, foeLeft = userTeam[-1], foeTeam[-1]
     if userLeft > 0 and foeLeft > 0:
         app.turnCount += 1
@@ -207,13 +188,8 @@ def turn(app, userTeam, foeTeam):
         userAttacked, foeAttacked = True, True
         # placeholder for minmax
         if userChoice == 4:
-            if userTeam[-1] == 1:
-                while userChoice == 4:
-                    app.message = "You have no other remaining pokemon! Pick another"
-            else:
-                switch(app, userTeam) 
-                user = userTeam[0]
-                userAttacked = False
+            user = userTeam[0]
+            userAttacked = False
         foeChoice = random.randint(0, 4) #random AI choice
         if foeChoice == 4:
             if foeTeam[-1] == 1:
@@ -253,8 +229,11 @@ def turn(app, userTeam, foeTeam):
                     foeTeam[-1] -= 1
                 else:
                     userTeam[-1] -= 1
+        if userTeam[-1] == 0 or foeTeam[-1] == 0:
+            app.gameOver = True
+            return
         if user.fainted == True:
-            app.switch = True
+            app.mode = "switchMode"
         if foe.fainted == True:
             switch(app, foeTeam, True)
     else:
@@ -304,6 +283,33 @@ def attackSequence(app, attacker, defender, move):
         app.message += f"{defender.name} fainted!\n"
         defender.fainted = True
 
+###############################################################################
+#Switch Mode
+
+def switchMode_mousePressed(app, event):
+    if event.y < .9 * app.width:
+        width = app.width // 6
+        if 0 < event.x <= width:
+            app.switchChoice = 0
+        elif width < event.x <= 2 * width:
+            app.switchChoice = 1
+        elif 2 * width < event.x <= 3 * width:
+            app.switchChoice = 2
+        elif 3 * width < event.x <= 4 * width:
+            app.switchChoice = 3
+        elif 4 * width < event.x <= 5 * width:
+            app.switchChoice = 4
+        else:
+            app.switchChoice = 5
+        if userTeam[0].fainted == False:
+            app.attackChoice = 4
+            switch(app, userTeam)
+            app.mode = "battleMode"
+            turn(app, userTeam, foeTeam)
+        else:
+            switch(app, userTeam)
+            app.mode = "battleMode"
+    
 def switch(app, team, bot = False):
     currentMon = team[0]
     if team[-1] == 0:
@@ -319,12 +325,13 @@ def switch(app, team, bot = False):
         team.insert(0, botMon)  
         app.message += f"{botMon.name} has switched in!"
         return 
+    print(app.switchChoice)
     app.switch = True
     app.message = "Here's your team"
     foundMon = False
     while foundMon == False:
         app.message += "Here's your team"
-        newMon = team[app.userChoice]
+        newMon = team[app.switchChoice]
         if newMon.fainted == True:
             app.message = f"{newMon.name} has no energy left to battle!"
         elif newMon == currentMon:
@@ -334,7 +341,25 @@ def switch(app, team, bot = False):
     team.remove(newMon)
     team.insert(0, newMon)
     app.message += f"{newMon.name} has switched in!"
-    app.switch = False
+    app.mode = "battleMode"
     return
+
+def switchMode_redrawAll(app, canvas):
+    canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
+    canvas.create_image(app.width // 2, app.height * .275, image = ImageTk.PhotoImage(app.battleBackground))
+    drawPokemon(app, canvas)
+    drawHUD(app, canvas)
+    drawSwitch(app, canvas)
+    drawChat(app, canvas)
+
+def drawSwitch(app, canvas):
+    width = app.width // 6
+    for monSlot in range(len(userTeam) - 1):
+        if userTeam[monSlot].fainted == True:
+            fill = "red"
+        else:
+            fill = "white"
+        canvas.create_rectangle(width * monSlot, app. height * .9, width * monSlot + width, app.height, fill = fill)
+        canvas.create_image (width * (.5 +  monSlot), app.height * .95, image = ImageTk.PhotoImage(app.scaleImage(app.monSprites[userTeam[monSlot].name]["front"], 1/5)))
 
 runApp(width = 1200, height = 700)
