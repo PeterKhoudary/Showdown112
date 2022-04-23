@@ -119,3 +119,4 @@ def teamRefresh(userTeam, foeTeam):
             team[monSlot].fainted = False
             for moveSlot in team[monSlot].moveset:
                 moveSlot[1] = moveNames[moveSlot[0]].PP
+        team[-1] = len(team) - 1

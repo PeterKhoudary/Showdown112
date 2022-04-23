@@ -103,7 +103,7 @@ def battleMode_keyPressed(app, event):
 def drawChat(app, canvas):
     least = min(app.width, app.height)
     canvas.create_text(app.width * .01, app.height * .78, text = f"{app.message}", anchor = NW,
-                            fill = "white", font = f"Helvetica {int(.025 * least)} bold")
+                            fill = "white", font = f"Helvetica {int(.015 * least)} bold")
     if app.gameOver:
         canvas.create_text(app.width * .5, app.height * .25, text = f"{app.winQuote}",
                             fill = "orange", font = f"Times {int(.225 * least)} bold")
@@ -186,8 +186,10 @@ def turn(app, userTeam, foeTeam):
         print(f'user mons = {userLeft}, bot mons = {foeLeft}')
         userLeft, foeLeft = userTeam[-1], foeTeam[-1]
         userAttacked, foeAttacked = True, True
+        app.message = f'Turn {app.turnCount}\n'
         # placeholder for minmax
         if userChoice == 4:
+            app.message += f'{user.name} has switched in!\n'
             user = userTeam[0]
             userAttacked = False
         foeChoice = random.randint(0, 4) #random AI choice
@@ -211,7 +213,6 @@ def turn(app, userTeam, foeTeam):
                 moveOrder = [(user, userAttacked), (foe, foeAttacked)]
             elif moveNames[foe.moveset[foeChoice][0]].priority > moveNames[user.moveset[userChoice][0]].priority: 
                 moveOrder = [(foe, foeAttacked), (user, userAttacked)]
-        app.message = f'Turn {app.turnCount}\n'
         for attackerData in moveOrder:
             attacker = attackerData[0]
             if attacker.fainted == True:
@@ -223,6 +224,8 @@ def turn(app, userTeam, foeTeam):
                 defender = user
                 attackerChoice = foeChoice
             attackSequence(app, attacker, defender, moveNames[attacker.moveset[attackerChoice][0]])
+            if attacker.fainted == True:
+                continue
             attacker.moveset[attackerChoice][1] -= 1
             if defender.fainted == True:
                 if defender == foe:
@@ -261,7 +264,7 @@ def attackSequence(app, attacker, defender, move):
         elif move.type in weaknesses[defenseType]:
             damage *= 2
         elif move.type in immunities[defenseType]:
-            app.message += f'{defenseType} types are immune to {move} \n'
+            app.message += f'{defenseType[0].upper() + defenseType[1:]} types are immune to {move.name}... \n'
             return 
     defender.currentHP -= damage
     percentDamage = round(damage / defender.finalStats["HP"] * 100, 1)
@@ -301,6 +304,9 @@ def switchMode_mousePressed(app, event):
             app.switchChoice = 4
         else:
             app.switchChoice = 5
+        if userTeam[app.switchChoice].fainted == True:
+            app.message = f'{userTeam[app.switchChoice]} has no energy left to battle!\n'
+            return
         if userTeam[0].fainted == False:
             app.attackChoice = 4
             switch(app, userTeam)
@@ -323,24 +329,12 @@ def switch(app, team, bot = False):
             botMon = team[botChoice]
         team.remove(botMon)
         team.insert(0, botMon)  
-        app.message += f"{botMon.name} has switched in!"
+        app.message += f"{botMon.name} has switched in!\n"
         return 
-    print(app.switchChoice)
-    app.switch = True
-    app.message = "Here's your team"
-    foundMon = False
-    while foundMon == False:
-        app.message += "Here's your team"
-        newMon = team[app.switchChoice]
-        if newMon.fainted == True:
-            app.message = f"{newMon.name} has no energy left to battle!"
-        elif newMon == currentMon:
-            app.message = "You can't cancel a switch!"
-        else:
-            foundMon = True
+    newMon = team[app.switchChoice]
     team.remove(newMon)
     team.insert(0, newMon)
-    app.message += f"{newMon.name} has switched in!"
+    app.message += f"{newMon.name} has switched in!\n"
     app.mode = "battleMode"
     return
 
