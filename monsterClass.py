@@ -106,8 +106,6 @@ blunder = Monster(keldBase,
                   {'HP': 4, 'ATK': 0, 'DEF': 0, 'SPATK': 252, 'SPDEF': 0, 'SPE': 252}, 
                   [['Secret Sword', 16], ['Hydro Pump', 8], ['Icy Wind', 24], ['Scald', 24]])
 
-
-
 testMons = [thugger, alder, lance, blunder]
 # for mon in testMons:
 #     print(mon.name, mon.finalStats, mon.moveset)

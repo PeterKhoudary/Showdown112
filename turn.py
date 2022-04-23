@@ -113,7 +113,7 @@ def terminalSwitch(currentMon, team, bot = False):
     print()
     return newMon
 
-foeTeam = [lance, thugger, 2]
-userTeam = [blunder, alder, 2]
+globalFoeTeam = [lance, thugger, 2]
+globalUserTeam = [blunder, alder, 2]
 
 #botBattle(userTeam[0], userTeam, foeTeam[0], foeTeam)
