@@ -201,7 +201,7 @@ def minmax(state, depth, max):
         return stateEvaluation(state)
     if max == True:
         bestScore = -infinity
-        bestMove = 0
+        bestMove = None
         for move in allBranches(state):
             playerMove, botMove = move[0], move[1]
             playerTeamCopy, botTeamCopy = copy.deepcopy(state[0]), copy.deepcopy(state[1])
@@ -216,18 +216,17 @@ def minmax(state, depth, max):
         return bestScore, bestMove
     else:
         bestScore = infinity
-        bestMove = 0
+        bestMove = None
         for move in allBranches(state):
             playerMove, botMove = move[0], move[1]
             playerTeamCopy, botTeamCopy = copy.deepcopy(state[0]), copy.deepcopy(state[1])
-            newState = [playerTeamCopy, botTeamCopy]
             newState = botTurn(playerTeamCopy, playerMove, botTeamCopy, botMove)
             newEval = minmax(newState, depth - 1, False)
             if type(newEval) == tuple:
                 newScore = newEval[0]
             else:
                 newScore = newEval
-            if newScore > bestScore:
+            if newScore < bestScore:
                 bestScore, bestMove = newScore, botMove
         return bestScore, bestMove
 
