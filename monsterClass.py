@@ -91,7 +91,6 @@ tyrantBase = {"name": "Tyranitar",
 monNames = {"Dragonite": dragoniteBase, "Tyranitar": tyrantBase, 
             "Volcarona": volcBase, "Keldeo": keldBase}
 
-
 #Test Monsters
 thugger = Monster(tyrantBase, 
                   {'HP': 252, 'ATK': 252, 'DEF': 0, 'SPATK': 4, 'SPDEF': 0, 'SPE': 0}, 
@@ -110,11 +109,11 @@ testMons = [thugger, alder, lance, blunder]
 # for mon in testMons:
 #     print(mon.name, mon.finalStats, mon.moveset)
 
-def teamRefresh(userTeam, foeTeam):
-    for team in [userTeam, foeTeam]:
-        for monSlot in range(len(userTeam) - 1):
-            team[monSlot].currentHP = team[monSlot].finalStats["HP"]
-            team[monSlot].fainted = False
-            for moveSlot in team[monSlot].moveset:
-                moveSlot[1] = moveNames[moveSlot[0]].PP
-        team[-1] = len(team) - 1
+# def teamRefresh(userTeam, foeTeam):
+#     for team in [userTeam, foeTeam]:
+#         for monSlot in range(len(userTeam) - 1):
+#             team[monSlot].currentHP = team[monSlot].finalStats["HP"]
+#             team[monSlot].fainted = False
+#             for moveSlot in team[monSlot].moveset:
+#                 moveSlot[1] = moveNames[moveSlot[0]].PP
+#         team[-1] = len(team) - 1

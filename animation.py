@@ -4,6 +4,8 @@ from damageCalc import *
 from moveClass import *
 from monsterClass import *
 
+#ONCE MINMAX IS FINISHED REMOVE ALL RANDOM ELEMENTS AND SWITCH PROPER
+
 ###############################################################################
 #Main App
 def appStarted(app):
@@ -20,13 +22,12 @@ def appStarted(app):
             app.monSprites[mon][side] = app.scaleImage(app.monSprites[mon][side], 2)
     app.userTeam = copy.deepcopy(globalUserTeam)
     app.foeTeam = copy.deepcopy(globalFoeTeam)
-    app.switch = False
     app.gameOver = False
     app.message = f'What will {app.userTeam[0]} do?'
+    app.turnCount = 0
     app.attackChoice = 0
     app.switchChoice = 0
     app.userAttacked = True
-    app.turnCount = 0
     app.winQuote = ''
 
 ###############################################################################
@@ -34,20 +35,23 @@ def appStarted(app):
 def splashScreenMode_redrawAll(app, canvas):
     least =  min(app.width, app.height)
     canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
-    canvas.create_text(app.width // 2, app.height // 5, text = "Pokemon Showdown112!",
-    fill = "silver", font = f"Helvetica {int(.08 * least)} bold")
-    canvas.create_text(app.width // 2, app.height * .3, text = "#Agency",
-    fill = "silver", font = f"Helvetica {int(.04 * least)} bold")
-    canvas.create_text(app.width // 2, app.height * .9, text = "Press Enter...",
-    fill = "silver", font = f"Helvetica {int(.03 * least)} bold")
-    canvas.create_image(app.width // 2, app.height * .6, image = ImageTk.PhotoImage(app.pokemonLogoStart))
+    canvas.create_text(app.width // 2, app.height // 5, 
+                       text = "Pokemon Showdown112!", fill = "silver", 
+                       font = f"Helvetica {int(.08 * least)} bold")
+    canvas.create_text(app.width // 2, app.height * .3, 
+                       text = "#Agency", fill = "silver", 
+                       font = f"Helvetica {int(.04 * least)} bold")
+    canvas.create_text(app.width // 2, app.height * .9, 
+                       text = "Press Enter...",fill = "silver", 
+                       font = f"Helvetica {int(.03 * least)} bold")
+    canvas.create_image(app.width // 2, app.height * .6, 
+                        image = ImageTk.PhotoImage(app.pokemonLogoStart))
 
 def splashScreenMode_keyPressed(app, event):
     if event.key == "Enter":
         app.mode = "modeSelect"
 
 ###############################################################################
-
 #Mode select
 def modeSelect_redrawAll(app, canvas):
     leftBound, rightBound = .2 * app.width, .8 * app.width
@@ -64,7 +68,7 @@ def modeSelect_redrawAll(app, canvas):
     fill = "Blue", font = f"Helvetica {int(.05 * least)} bold")
 
 def modeSelect_keyPressed(app, event):
-    if event.key == "Enter":
+    if event.key == "b":
         app.mode = "splashScreenMode"
 
 def modeSelect_mousePressed(app, event):
@@ -74,7 +78,6 @@ def modeSelect_mousePressed(app, event):
             app.mode = "battleMode"
             
 ###############################################################################
-
 #Battle Mode
 def battleMode_redrawAll(app, canvas):
     canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
@@ -96,13 +99,13 @@ def battleMode_timerFired(app):
 def battleMode_keyPressed(app, event):
     if event.key == "r":
         app.gameOver = False
-        #teamRefresh(app.userTeam, app.foeTeam)
+        app.winQuote = ''
         app.userTeam = copy.deepcopy(globalUserTeam)
         app.foeTeam = copy.deepcopy(globalFoeTeam)
         app.message = f'What will {app.userTeam[0]} do?'
         app.turnCount = 0
-    if event.key == "enter":
-        app.mode == "splashScreenMode"
+    if event.key == "b":
+        app.mode = "modeSelect"
 
 def drawChat(app, canvas):
     least = min(app.width, app.height)
@@ -228,8 +231,6 @@ def turn(app):
                 defender = user
                 attackerChoice = foeChoice
             attackSequence(app, attacker, defender, moveNames[attacker.moveset[attackerChoice][0]])
-            if attacker.fainted == True:
-                continue
             attacker.moveset[attackerChoice][1] -= 1
             if defender.fainted == True:
                 if defender == foe:
@@ -292,7 +293,6 @@ def attackSequence(app, attacker, defender, move):
 
 ###############################################################################
 #Switch Mode
-
 def switchMode_mousePressed(app, event):
     if event.y < .9 * app.width:
         width = app.width // 6
@@ -317,8 +317,8 @@ def switchMode_mousePressed(app, event):
             app.mode = "battleMode"
             return
         if app.userTeam[0].fainted == False:
-            app.attackChoice = 4
             switch(app, app.userTeam)
+            app.attackChoice = 4
             app.mode = "battleMode"
             turn(app)
         else:
@@ -363,6 +363,6 @@ def drawSwitch(app, canvas):
         else:
             fill = "white"
         canvas.create_rectangle(width * monSlot, app. height * .9, width * monSlot + width, app.height, fill = fill)
-        canvas.create_image (width * (.5 +  monSlot), app.height * .95, image = ImageTk.PhotoImage(app.scaleImage(app.monSprites[app.userTeam[monSlot].name]["front"], 1/5)))
+        canvas.create_image(width * (.5 +  monSlot), app.height * .95, image = ImageTk.PhotoImage(app.scaleImage(app.monSprites[app.userTeam[monSlot].name]["front"], 1/5)))
 
 runApp(width = 1200, height = 700)

@@ -4,14 +4,15 @@ from damageCalc import *
 from cmu_112_graphics import *
 import time 
 
-def botBattle(user, userTeam, foe, foeTeam):
+def terminalBattle(userTeam, foeTeam):
+    user, foe = userTeam[0], foeTeam[0]
     userLeft, foeLeft = userTeam[-1], foeTeam[-1]
     while userLeft != 0 and foeLeft != 0:
         print(f'user mons = {userLeft}, bot mons = {foeLeft}')
         if user.fainted == True:
-            user = switch(user, userTeam)
+            user = terminalSwitch(user, userTeam)
         elif foe.fainted == True:
-            foe = switch(foe, foeTeam, True)
+            foe = terminalSwitch(foe, foeTeam, True)
         while user.fainted != True and foe.fainted != True:
             userAttacked, foeAttacked = True, True
             foeChoice = random.randint(0, 4) #random AI choice
@@ -29,14 +30,14 @@ def botBattle(user, userTeam, foe, foeTeam):
             while userChoice == 4 and userTeam[-1] == 1:
                 userChoice = input("You have no remaining Pokemon! /n Choose an attack: ")
             if userChoice == 4:
-                newUser = switch(user, userTeam) 
+                newUser = terminalSwitch(user, userTeam) 
                 userAttacked = False
                 user = newUser
             foeChoice = random.randint(0, 4) #random AI choice
             while foeChoice == 4 and foeTeam[-1] == 1:
                 foeChoice = random.randint(0, 4)
             if foeChoice == 4:
-                newFoe = switch(foe, foeTeam, True) 
+                newFoe = terminalSwitch(foe, foeTeam, True) 
                 foeAttacked = False
                 foe = newFoe
             if foe.finalStats["SPE"] > user.finalStats["SPE"]:
@@ -113,7 +114,7 @@ def terminalSwitch(currentMon, team, bot = False):
     print()
     return newMon
 
-globalFoeTeam = [lance, thugger, 2]
-globalUserTeam = [blunder, alder, 2]
+globalUserTeam = [lance, thugger, 2]
+globalFoeTeam = [blunder, alder, 2]
 
-#botBattle(userTeam[0], userTeam, foeTeam[0], foeTeam)
+#terminalBattle(copy.deepcopy(globalUserTeam), copy.deepcopy(globalFoeTeam))
