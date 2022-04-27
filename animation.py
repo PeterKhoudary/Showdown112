@@ -154,7 +154,7 @@ def teamSelectMode_mousePressed(app, event):
         elif app.height * .4 <= event.y < app.height * .5:
             assignTeams(app, 3)
         elif app.height * .5 <= event.y < app.height * .6:
-            assignTeams(app, 3)
+            assignTeams(app, 4)
 
 def teamSelectMode_keyPressed(app, event):
     if event.key == "b":
