@@ -10,7 +10,7 @@ def appStarted(app):
     app.titleImage = app.loadImage("pmd.png")
     app.modeSelectImage = app.loadImage("ocean.png")
     app.teamSelectImage = app.loadImage("shaymins.jpg")
-    app.musicSelect = app.loadImage("harmonica.jpg")
+    app.helpSelectImage = app.loadImage("harmonica.jpg")
     app.battleBackground = app.scaleImage(app.loadImage("starlight.png"), 1/4)
     app.pokemonLogo = app.scaleImage(app.loadImage("logo.png"), 1)
     app.monSprites = dict()
@@ -21,8 +21,16 @@ def appStarted(app):
         app.monSprites[mon]["back"] = app.loadImage(mon.upper() + "BACK.png")
         for side in ["front", "back"]:
             app.monSprites[mon][side] = app.scaleImage(app.monSprites[mon][side], 2)
-    app.userTeam = copy.deepcopy(globalUserTeam)
-    app.foeTeam = copy.deepcopy(globalFoeTeam)
+    app.helpMessage = '''This game is point and click. If at any time you wish to exit the current mode, press the "b" key.
+                    \nTeam select: Here you pick which teams will be fought with.\nPress the "t" button to toggle which team you are selecting for.
+                    \nBattle Mode: Pick your move/switch with a mouse click, and choose your switch with another click. \nIf you press "r" at any time during the battle or on the result screen, the battle state will reset. 
+                    \nThe battle state will also reset whenever you return to the mode selection screen.
+                    \nEnjoy!'''
+    app.choosingFor = True
+    app.globalUserTeamName, app.globalUserTeam = teamTuples[0][0], teamTuples[0][1]
+    app.globalFoeTeamName, app.globalFoeTeam = teamTuples[1][0], teamTuples[1][1]
+    app.userTeam = copy.deepcopy(app.globalUserTeam)
+    app.foeTeam = copy.deepcopy(app.globalFoeTeam)
     app.gameOver = False
     app.message = f'What will {app.userTeam[0]} do?'
     app.turnCount = 0
@@ -36,6 +44,9 @@ def appStarted(app):
 ###############################################################################
 #Title screen
 def titleMode_redrawAll(app, canvas):
+    for color in moveColors:
+        canvas.create_rectangle(0, 0, app.width, app.height, fill = moveColors[color])
+
     least =  min(app.width, app.height)
     canvas.create_image(app.width // 2, app.height // 2, 
                         image = ImageTk.PhotoImage(app.titleImage))
@@ -63,10 +74,10 @@ def modeSelect_redrawAll(app, canvas):
     canvas.create_image(app.width // 2, app.height // 2, 
                         image = ImageTk.PhotoImage(app.modeSelectImage))
     canvas.create_rectangle(leftBound, .1 * app.height, rightBound, .3 * app.height, fill = "black")
-    canvas.create_text(app.width // 2, app.height * .2, text = "Music",
+    canvas.create_text(app.width // 2, app.height * .2, text = "Information / Help",
     fill = "light blue", font = f"Helvetica {int(.05 * least)} bold")
     canvas.create_rectangle(leftBound, .4 * app.height, rightBound, .6 * app.height, fill = "black")
-    canvas.create_text(app.width // 2, app.height * .5, text = "Teams",
+    canvas.create_text(app.width // 2, app.height * .5, text = "Team Select",
     fill = "light blue", font = f"Helvetica {int(.05 * least)} bold")
     canvas.create_rectangle(leftBound, .7 * app.height, rightBound, .9 * app.height, fill = "black")
     canvas.create_text(app.width // 2, app.height * .8, text = "Battle Start",
@@ -84,6 +95,80 @@ def modeSelect_mousePressed(app, event):
                 app.mode = "endScreen"
             else:
                 app.mode = "battleMode"
+        elif .4 * app.height < event.y < .6 * app.height:
+            app.mode = "teamSelectMode"
+        elif .1 * app.height < event.y < .3 * app.height:
+            app.mode = "helpMode"
+
+###############################################################################
+#Help Mode
+def helpMode_redrawAll(app, canvas):
+    canvas.create_image(app.width // 2, app.height // 2, image = ImageTk.PhotoImage(app.helpSelectImage))
+    canvas.create_rectangle(0, 0, app.width, app.height // 2, fill = "black")
+    canvas.create_text(app.width * .01, app.height * .01, text = app.helpMessage,
+            fill = "light blue", font = f"Helvetica {int(.015 * app.width)} bold", anchor = NW)
+
+def helpMode_keyPressed(app, event):
+    if event.key == "b":
+        app.mode = "modeSelect"
+
+###############################################################################
+#Team select mode
+def teamSelectMode_redrawAll(app, canvas):
+    canvas.create_image(app.width // 2, app.height // 2, image = ImageTk.PhotoImage(app.teamSelectImage))
+    drawTeamInfo(app, canvas)
+    drawTeams(app, canvas)
+
+def drawTeamInfo(app, canvas):
+    canvas.create_text(app.width * .1, app.height * .05, text = f'Player Team: {app.globalUserTeamName}',
+            fill = "black", font = f"Helvetica {int(.035 * app.width)} bold", anchor = W)
+    canvas.create_text(app.width * .9, app.height * .05, text = f'AI Team: {app.globalFoeTeamName}',
+            fill = "black", font = f"Helvetica {int(.035 * app.width)} bold", anchor = E)
+    if app.choosingFor == True:
+        beingChosen = "Player"
+    else:
+        beingChosen = "AI"
+    canvas.create_rectangle(app.width // 4, app.height * .9, app.width * .75, app.height * .985, fill = "light blue")
+    canvas.create_text(app.width // 2, app.height * .94, text = f'Choosing for: {beingChosen}', font = f"Helvetica {int(.0325 * app.width)} bold", fill = "black")
+
+def drawTeams(app, canvas):
+    slot = 0
+    leftBound, rightBound = .1 * app.width, .9 * app.width
+    for teamTuple in teamTuples:
+        teamName, team = teamTuple[0], teamTuple[1]
+        canvas.create_rectangle(leftBound, app.height * .1 * (1 + slot), rightBound, .1 * app.height * (2 + slot ), fill = "black", outline = "white")
+        canvas.create_text(app.width * .11, app.height * .1 * (1.5 + slot), text = f'{teamName}',
+            fill = "light blue", font = f"Helvetica {int(.035 * app.width)} bold", anchor = W)
+        for monSlot in range(len(team) - 1):
+            canvas.create_image(app.width * .625 + app.width * .08 * (1 + monSlot), app.height * .1 * (1.5 + slot), image = ImageTk.PhotoImage(app.scaleImage(app.monSprites[team[monSlot].name]["front"], 1/5)))
+        slot += 1
+
+def teamSelectMode_mousePressed(app, event):
+    if app.width * .1 <= event.x <= app.width * .9:
+        if app.height * .1 <= event.y < app.height * .2:
+            assignTeams(app, 0)
+        elif app.height * .2 <= event.y < app.height * .3:
+            assignTeams(app, 1)
+        elif app.height * .3 <= event.y < app.height * .4:
+            assignTeams(app, 2)
+        elif app.height * .4 <= event.y < app.height * .5:
+            assignTeams(app, 3)
+
+def teamSelectMode_keyPressed(app, event):
+    if event.key == "b":
+        teamRefresh(app)
+        app.mode = "modeSelect"
+    if event.key == "t":
+        if app.choosingFor == False:
+            app.choosingFor = True
+        else:
+            app.choosingFor = False
+
+def assignTeams(app, choice):
+    if app.choosingFor == True:
+        app.globalUserTeamName, app.globalUserTeam = teamTuples[choice][0], teamTuples[choice][1]
+    else:
+        app.globalFoeTeamName, app.globalFoeTeam = teamTuples[choice][0], teamTuples[choice][1]
             
 ###############################################################################
 #Battle mode
@@ -107,13 +192,9 @@ def battleMode_timerFired(app):
             
 def battleMode_keyPressed(app, event):
     if event.key == "r":
-        app.gameOver = False
-        app.winQuote = ''
-        app.userTeam = copy.deepcopy(globalUserTeam)
-        app.foeTeam = copy.deepcopy(globalFoeTeam)
-        app.message = f'What will {app.userTeam[0]} do?'
-        app.turnCount = 0
+        teamRefresh(app)
     if event.key == "b":
+        teamRefresh(app)
         app.mode = "modeSelect"
 
 def drawChat(app, canvas):
@@ -140,14 +221,14 @@ def drawHUD(app, canvas):
     #User health bar
     canvas.create_rectangle(app.width * .63, app. height * .6, app.width, app.height * .7 + barWidth, fill = "silver")
     canvas.create_rectangle(app.width * .64, app. height * .65, app.width * .64 + barLength, app.height * .65 + barWidth, fill = None)
-    canvas.create_rectangle(app.width * .64, app. height * .65, app.width * .64 + barLength * userPercent, app.height * .65 + barWidth, fill = userFill)
+    canvas.create_rectangle(app.width * .64 + ((1 - userPercent) * barLength), app. height * .65, app.width * .64 + barLength, app.height * .65 + barWidth, fill = userFill)
     canvas.create_text(app.width * .64, app.height * .65, text = f"{app.userTeam[0].name}",
                             fill = "black", font = f"Helvetica {int(20)} bold", anchor = SW)
     canvas.create_text(app.width * .64, app.height * .67, text = f"Lv. {app.userTeam[0].level}",
                             fill = "black", font = f"Helvetica {int(20)} bold", anchor = NW)
     canvas.create_text(app.width * .99, app.height * .65, text = f"{round(app.userTeam[0].currentHP / app.userTeam[0].finalStats['HP'] * 100, 2)}%",
                             fill = "black", font = f"Helvetica {int(20)} bold", anchor = SE)
-    canvas.create_text(app.width * .99, app.height * .67, text = f"{app.userTeam[0].currentHP} / {app.userTeam[0].finalStats['HP']}",
+    canvas.create_text(app.width * .99, app.height * .67, text = f"{app.userTeam[0].currentHP}/{app.userTeam[0].finalStats['HP']}",
                             fill = "black", font = f"Helvetica {int(20)} bold", anchor = NE)
     #AI health bar
     canvas.create_rectangle(0, app. height * .025, app.width * .02 + barLength, app.height * .125 + barWidth, fill = "silver")
@@ -159,7 +240,7 @@ def drawHUD(app, canvas):
                             fill = "black", font = f"Helvetica {int(20)} bold", anchor = NW)
     canvas.create_text(app.width * .36, app.height * .075, text = f"{round(app.foeTeam[0].currentHP / app.foeTeam[0].finalStats['HP'] * 100, 2)}%",
                             fill = "black", font = f"Helvetica {int(20)} bold", anchor = SE)
-    canvas.create_text(app.width * .36, app.height * .095, text = f"{app.foeTeam[0].currentHP} / {app.foeTeam[0].finalStats['HP']}",
+    canvas.create_text(app.width * .36, app.height * .095, text = f"{app.foeTeam[0].currentHP}/{app.foeTeam[0].finalStats['HP']}",
                             fill = "black", font = f"Helvetica {int(20)} bold", anchor = NE)
 
 def drawPokemon(app, canvas):
@@ -178,11 +259,11 @@ def drawMoves(app, canvas):
         if move.type == "dark":
             textColor = "white"
         else:
-            textColor = "Black"
+            textColor = "black"
         canvas.create_rectangle(width * moveSlot, app. height * .9, width * moveSlot + width, app.height, fill = moveColor)
         canvas.create_text(width * moveSlot + width / 2, app.height * .93, text = f"{move.name}",
                             fill = textColor, font = f"Helvetica {int(.03 * least)} bold")
-        canvas.create_text(width * moveSlot + width / 2, app.height * .97, text = f"{moveset[moveSlot][1]} / {moveNames[move.name].PP}",
+        canvas.create_text(width * moveSlot + width / 2, app.height * .97, text = f"{move.type[0].upper() + move.type[1:]}\t{moveset[moveSlot][1]}/{moveNames[move.name].PP}",
                             fill = textColor, font = f"Helvetica {int(.02 * least)} bold")
     canvas.create_rectangle(app.width - width, app. height * .9, app.width, app.height, fill = "white")
     canvas.create_text(width * 4 + width / 2, app.height * .95, text = "Switch",
@@ -209,6 +290,14 @@ def battleMode_mousePressed(app, event):
                     turn(app)
             else:
                 app.mode = "switchMode"
+
+def teamRefresh(app):
+    app.gameOver = False
+    app.winQuote = ''
+    app.userTeam = copy.deepcopy(app.globalUserTeam)
+    app.foeTeam = copy.deepcopy(app.globalFoeTeam)
+    app.message = f'What will {app.userTeam[0]} do?'
+    app.turnCount = 0
             
 def turn(app):
     user, foe = app.userTeam[0], app.foeTeam[0]
@@ -384,14 +473,10 @@ def drawSwitch(app, canvas):
 #Win screen
 def endScreen_keyPressed(app, event):
     if event.key == "r":
-        app.gameOver = False
-        app.winQuote = ''
-        app.userTeam = copy.deepcopy(globalUserTeam)
-        app.foeTeam = copy.deepcopy(globalFoeTeam)
-        app.message = f'What will {app.userTeam[0]} do?'
-        app.turnCount = 0
+        teamRefresh(app)
         app.mode = "battleMode"
     if event.key == "b":
+        teamRefresh(app)
         app.mode = "modeSelect"
 
 def endScreen_redrawAll(app, canvas):

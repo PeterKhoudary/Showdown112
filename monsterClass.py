@@ -70,14 +70,9 @@ blunder = Monster(keldBase,
                   {'HP': 4, 'ATK': 0, 'DEF': 0, 'SPATK': 252, 'SPDEF': 0, 'SPE': 252}, 
                   [['Secret Sword', 16], ['Hydro Pump', 8], ['Icy Wind', 24], ['Scald', 24]])
 
-globalUserTeam = [blunder, alder, 2]
-globalFoeTeam = [lance, thugger, 2]
+test1 = [blunder, alder, thugger, 3]
+test2 = [lance, thugger, blunder, 3]
+test3 = [alder, thugger, lance, 3]
+test4 = [lance, alder, blunder, 3]
 
-# def teamRefresh(userTeam, foeTeam):
-#     for team in [userTeam, foeTeam]:
-#         for monSlot in range(len(userTeam) - 1):
-#             team[monSlot].currentHP = team[monSlot].finalStats["HP"]
-#             team[monSlot].fainted = False
-#             for moveSlot in team[monSlot].moveset:
-#                 moveSlot[1] = moveNames[moveSlot[0]].PP
-#         team[-1] = len(team) - 1
+teamTuples = [("drag" , test1), ("volc", test2), ("keld", test3), ("tar", test4)]
