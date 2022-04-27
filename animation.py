@@ -25,7 +25,7 @@ def appStarted(app):
             app.monSprites[mon][side] = app.scaleImage(app.monSprites[mon][side], 2)
     app.helpMessage = '''This game is point and click. If at any time you wish to exit the current mode, press the "b" key.
                     \nTeam select: Here you pick which teams will be fought with.\nPress the "t" button to toggle which team you are selecting for.
-                    \nBattle Mode: Pick your move/switch with a mouse click, and choose your switch with another click. \nIf you decide to cancel your switch, just click the pokemon currently in battle\nIf you press "r" at any time during the battle or on the result screen, the battle state will reset. 
+                    \nBattle Mode: Pick your move/switch with a mouse click, and choose your switch with another click. \nIf you decide to cancel your switch, just click the pokemon currently in battle.\nIf you press "r" at any time during the battle or on the result screen, the battle state will reset. 
                     \nThe battle state will also reset whenever you return to the mode selection screen.
                     \nEnjoy!'''
     app.choosingFor = True
@@ -136,7 +136,7 @@ def drawTeams(app, canvas): #draws icon and team names for user to pick
     leftBound, rightBound = .1 * app.width, .9 * app.width
     for teamTuple in teamTuples:
         teamName, team = teamTuple[0], teamTuple[1]
-        canvas.create_rectangle(leftBound, app.height * .1 * (1 + slot), rightBound, .1 * app.height * (2 + slot ), fill = "black", outline = "white")
+        canvas.create_rectangle(leftBound, app.height * .1 * (1 + slot), rightBound, .1 * app.height * (2 + slot ), fill = "black", outline = "light blue")
         canvas.create_text(app.width * .11, app.height * .1 * (1.5 + slot), text = f'{teamName}',
             fill = "light blue", font = f"Helvetica {int(.035 * app.width)} bold", anchor = W)
         for monSlot in range(len(team) - 1):
