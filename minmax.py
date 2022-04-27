@@ -15,24 +15,24 @@ def roundHalfUp(d):
 infinity = 1000 #idk we'll see how this needs to be tweaked, minmaxing is fun cuz the heuristic writing is subjective
 
 ###############################################################################
-#all possible Moves
-def allPossibleMoves(team):
+#all possible states
+def allPossibleMoves(team): #gives all possible moves a team can make from a given state
     for mon in team:
         mon = team[0]
         possibleMoves = []
         for moveSlot in range(len(mon.moveset)):
             if mon.moveset[moveSlot][1] == 0:
-                continue
+                continue #can't use move if no PP left
             else:
                 possibleMoves.append(moveSlot)
         for monSlot in range(1, len(team) - 1):
             if team[monSlot].fainted:
                 continue
             else:
-                possibleMoves.append([4, monSlot])
+                possibleMoves.append([4, monSlot]) #switch is noted as four, then second part refers to which slot
         return possibleMoves
 
-def allBranches(state):
+def allBranches(state): #combines all possible moves for both opponents into one tuple containing both moves
     playerMoves, botMoves = allPossibleMoves(state[0]), allPossibleMoves(state[1])
     allMoves = []
     for myMove in playerMoves:
@@ -40,7 +40,7 @@ def allBranches(state):
             allMoves.append((myMove, theirMove))
     return allMoves
 
-def allPossibleSwitches(team):
+def allPossibleSwitches(team): #this is for the minmax to be able to switch in something when a pokemon faints
     possibleSwitches = []
     for monSlot in range(1, len(team) - 1):
             if team[monSlot].fainted:
@@ -51,7 +51,7 @@ def allPossibleSwitches(team):
 
 ###############################################################################
 #nondestructive state editing
-def botSwitch(team, choice):
+def botSwitch(team, choice): #handles switching for minmax
     if team[-1] == 0:
         return
     elif choice == None:
@@ -62,16 +62,16 @@ def botSwitch(team, choice):
         team.insert(0, botMon)
     return team
 
-def botAttackSequence(attacker, defender, move):
+def botAttackSequence(attacker, defender, move): #attack sequence but trimmed off the app related things
     missThreshold = move.accuracy * 100
     hitCheck = random.randint(1, 100)
     if hitCheck > missThreshold:
-        return
+        return 
     percentBefore = round(defender.currentHP / defender.finalStats["HP"] * 100, 1)
     damage = (((((2 * attacker.level) / 5) + 2) * move.power * (attacker.finalStats[move.uses] / defender.finalStats[move.hits])) / 50) + 2
     if move.type in attacker.types:
-        damage *= 1.5
-    roll = random.randint(85,100)
+        damage *= 1.5 
+    roll = random.randint(85,100) 
     damage = roundHalfUp(damage * roll / 100)
     critChance = random.randint(1, 16)
     if critChance == 1:
@@ -94,7 +94,7 @@ def botAttackSequence(attacker, defender, move):
         defender.currentHP = 0
         defender.fainted = True  
 
-def botTurn(playerTeam, playerChoice, botTeam, botChoice):
+def botTurn(playerTeam, playerChoice, botTeam, botChoice): #turn modified such that it doesn't need any user input / compatible with minmax
     player, bot = playerTeam[0], botTeam[0]
     playerLeft, botLeft = playerTeam[-1], botTeam[-1]
     if playerLeft > 0 and botLeft > 0:
@@ -115,7 +115,7 @@ def botTurn(playerTeam, playerChoice, botTeam, botChoice):
             moveOrder.pop(1)
         if moveOrder[0][1] == False:
             moveOrder.pop(0)
-        if len(moveOrder) == 2: #priority check
+        if len(moveOrder) == 2: 
             if moveNames[player.moveset[playerChoice][0]].priority > moveNames[bot.moveset[botChoice][0]].priority:
                 moveOrder = [(player, playerAttacked), (bot, botAttacked)]
             elif moveNames[bot.moveset[botChoice][0]].priority > moveNames[player.moveset[playerChoice][0]].priority: 
@@ -145,12 +145,12 @@ def botTurn(playerTeam, playerChoice, botTeam, botChoice):
         botSwitch(botTeam, bestChoice)
     return playerTeam, botTeam
 
-def bestSwitch(playerTeam, botTeam, max):
+def bestSwitch(playerTeam, botTeam, max): #finds the best switch in for a mon in the minmax once it has fainted, different from switching as a move
     if max:
         switchChoices = allPossibleSwitches(botTeam)
     else:
         switchChoices = allPossibleSwitches(playerTeam)
-    bestChoice, bestScore = None, infinity
+    bestChoice, bestScore = None, infinity #follows the general minmax structure sans recursion
     for choice in switchChoices:
             newState = [copy.deepcopy(playerTeam), copy.deepcopy(botTeam)]
             if max:
@@ -178,7 +178,7 @@ def stateEvaluation(newState):
     monDifference = botTeam[-1] - playerTeam[-1]
     score += (monDifference * 75) #mon difference
     remainingPlayers, remainingBots = [], []
-    for team in[(playerTeam, remainingPlayers), (botTeam, remainingBots)]:
+    for team in[(playerTeam, remainingPlayers), (botTeam, remainingBots)]: #only worried about the living pokemon for the next checks
         for monSlot in range(len(team[0]) - 1):
             mon = team[0][monSlot]
             if mon.fainted:

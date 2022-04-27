@@ -15,7 +15,7 @@ def appStarted(app):
     app.pokemonLogo = app.scaleImage(app.loadImage("logo.png"), 1)
     app.monSprites = dict()
     app.monIcons = dict()
-    for mon in monNames:
+    for mon in monNames: #assingns all sprites
         app.monSprites[mon] = dict()
         app.monSprites[mon]["front"] = app.loadImage(mon.upper() + "FRONT.png")
         app.monSprites[mon]["back"] = app.loadImage(mon.upper() + "BACK.png")
@@ -23,7 +23,7 @@ def appStarted(app):
             app.monSprites[mon][side] = app.scaleImage(app.monSprites[mon][side], 2)
     app.helpMessage = '''This game is point and click. If at any time you wish to exit the current mode, press the "b" key.
                     \nTeam select: Here you pick which teams will be fought with.\nPress the "t" button to toggle which team you are selecting for.
-                    \nBattle Mode: Pick your move/switch with a mouse click, and choose your switch with another click. \nIf you press "r" at any time during the battle or on the result screen, the battle state will reset. 
+                    \nBattle Mode: Pick your move/switch with a mouse click, and choose your switch with another click. If you decide to cancel your switch, just click the pokemon currently in battle\nIf you press "r" at any time during the battle or on the result screen, the battle state will reset. 
                     \nThe battle state will also reset whenever you return to the mode selection screen.
                     \nEnjoy!'''
     app.choosingFor = True
@@ -44,9 +44,6 @@ def appStarted(app):
 ###############################################################################
 #Title screen
 def titleMode_redrawAll(app, canvas):
-    for color in moveColors:
-        canvas.create_rectangle(0, 0, app.width, app.height, fill = moveColors[color])
-
     least =  min(app.width, app.height)
     canvas.create_image(app.width // 2, app.height // 2, 
                         image = ImageTk.PhotoImage(app.titleImage))
@@ -73,15 +70,16 @@ def modeSelect_redrawAll(app, canvas):
     least =  min(app.width, app.height)
     canvas.create_image(app.width // 2, app.height // 2, 
                         image = ImageTk.PhotoImage(app.modeSelectImage))
+    #all boxes
     canvas.create_rectangle(leftBound, .1 * app.height, rightBound, .3 * app.height, fill = "black")
     canvas.create_text(app.width // 2, app.height * .2, text = "Information / Help",
-    fill = "light blue", font = f"Helvetica {int(.05 * least)} bold")
+                       fill = "light blue", font = f"Helvetica {int(.05 * least)} bold")
     canvas.create_rectangle(leftBound, .4 * app.height, rightBound, .6 * app.height, fill = "black")
     canvas.create_text(app.width // 2, app.height * .5, text = "Team Select",
-    fill = "light blue", font = f"Helvetica {int(.05 * least)} bold")
+                       fill = "light blue", font = f"Helvetica {int(.05 * least)} bold")
     canvas.create_rectangle(leftBound, .7 * app.height, rightBound, .9 * app.height, fill = "black")
     canvas.create_text(app.width // 2, app.height * .8, text = "Battle Start",
-    fill = "light blue", font = f"Helvetica {int(.05 * least)} bold")
+                       fill = "light blue", font = f"Helvetica {int(.05 * least)} bold")
 
 def modeSelect_keyPressed(app, event):
     if event.key == "b":
@@ -103,7 +101,7 @@ def modeSelect_mousePressed(app, event):
 ###############################################################################
 #Help Mode
 def helpMode_redrawAll(app, canvas):
-    canvas.create_image(app.width // 2, app.height // 2, image = ImageTk.PhotoImage(app.helpSelectImage))
+    canvas.create_image(app.width // 2, app.height *.55, image = ImageTk.PhotoImage(app.helpSelectImage))
     canvas.create_rectangle(0, 0, app.width, app.height // 2, fill = "black")
     canvas.create_text(app.width * .01, app.height * .01, text = app.helpMessage,
             fill = "light blue", font = f"Helvetica {int(.015 * app.width)} bold", anchor = NW)
@@ -119,7 +117,7 @@ def teamSelectMode_redrawAll(app, canvas):
     drawTeamInfo(app, canvas)
     drawTeams(app, canvas)
 
-def drawTeamInfo(app, canvas):
+def drawTeamInfo(app, canvas): #displays who has what team and who use is currently picking for
     canvas.create_text(app.width * .1, app.height * .05, text = f'Player Team: {app.globalUserTeamName}',
             fill = "black", font = f"Helvetica {int(.035 * app.width)} bold", anchor = W)
     canvas.create_text(app.width * .9, app.height * .05, text = f'AI Team: {app.globalFoeTeamName}',
@@ -131,7 +129,7 @@ def drawTeamInfo(app, canvas):
     canvas.create_rectangle(app.width // 4, app.height * .9, app.width * .75, app.height * .985, fill = "light blue")
     canvas.create_text(app.width // 2, app.height * .94, text = f'Choosing for: {beingChosen}', font = f"Helvetica {int(.0325 * app.width)} bold", fill = "black")
 
-def drawTeams(app, canvas):
+def drawTeams(app, canvas): #draws icon and team names for user to pick
     slot = 0
     leftBound, rightBound = .1 * app.width, .9 * app.width
     for teamTuple in teamTuples:
@@ -164,7 +162,7 @@ def teamSelectMode_keyPressed(app, event):
         else:
             app.choosingFor = False
 
-def assignTeams(app, choice):
+def assignTeams(app, choice): #sets the teams for the battle
     if app.choosingFor == True:
         app.globalUserTeamName, app.globalUserTeam = teamTuples[choice][0], teamTuples[choice][1]
     else:
@@ -197,12 +195,12 @@ def battleMode_keyPressed(app, event):
         teamRefresh(app)
         app.mode = "modeSelect"
 
-def drawChat(app, canvas):
+def drawChat(app, canvas): #draws textbox
     least = min(app.width, app.height)
     canvas.create_text(app.width * .01, app.height * .78, text = f"{app.message}", anchor = NW,
                             fill = "white", font = f"Helvetica {int(.015 * least)} bold")
 
-def drawHUD(app, canvas):
+def drawHUD(app, canvas): #draws health bars
     barLength = app.width * .35
     barWidth = app.height * .02
     userFill, foeFill = "green", "green"
@@ -243,13 +241,13 @@ def drawHUD(app, canvas):
     canvas.create_text(app.width * .36, app.height * .095, text = f"{app.foeTeam[0].currentHP}/{app.foeTeam[0].finalStats['HP']}",
                             fill = "black", font = f"Helvetica {int(20)} bold", anchor = NE)
 
-def drawPokemon(app, canvas):
+def drawPokemon(app, canvas): #draws pokemon sprites
     if app.foeTeam[0].fainted == False:
         canvas.create_image(app.width * .74, app.height * .223, image = ImageTk.PhotoImage(app.monSprites[app.foeTeam[0].name]["front"]))
     if app.userTeam[0].fainted == False:
         canvas.create_image(app.width * .3, app.height * .5475, image = ImageTk.PhotoImage(app.monSprites[app.userTeam[0].name]["back"]))
 
-def drawMoves(app, canvas):
+def drawMoves(app, canvas): #draws moves
     least =  min(app.width, app.height)
     moveset = app.userTeam[0].moveset
     for moveSlot in range(len(moveset)):
@@ -291,7 +289,7 @@ def battleMode_mousePressed(app, event):
             else:
                 app.mode = "switchMode"
 
-def teamRefresh(app):
+def teamRefresh(app): #resets game state
     app.gameOver = False
     app.winQuote = ''
     app.userTeam = copy.deepcopy(app.globalUserTeam)
@@ -303,12 +301,12 @@ def turn(app):
     user, foe = app.userTeam[0], app.foeTeam[0]
     userChoice = app.attackChoice
     userLeft, foeLeft = app.userTeam[-1], app.foeTeam[-1]
-    if userLeft > 0 and foeLeft > 0:
+    if userLeft > 0 and foeLeft > 0: #game is over if one team has no living mons
         app.turnCount += 1
         userLeft, foeLeft = app.userTeam[-1], app.foeTeam[-1]
         userAttacked, foeAttacked = True, True
         app.message = f'Turn {app.turnCount}\n'
-        foeChoice = minmax((app.userTeam, app.foeTeam), 2, True)[1]
+        foeChoice = minmax((app.userTeam, app.foeTeam), 2, True)[1] #this is the soul of the program, calls minmax to produce a best choice for AI
         if type(foeChoice) == list:
                 switch(app, app.foeTeam, True) 
                 foe = app.foeTeam[0]
@@ -317,7 +315,7 @@ def turn(app):
             app.message += f'{user.name} has switched in!\n'
             user = app.userTeam[0]
             userAttacked = False
-        if foe.finalStats["SPE"] > user.finalStats["SPE"]:
+        if foe.finalStats["SPE"] > user.finalStats["SPE"]: #speed checks
             moveOrder = [(foe, foeAttacked), (user, userAttacked)]
         else:
             moveOrder = [(user, userAttacked), (foe, foeAttacked)]
@@ -330,7 +328,7 @@ def turn(app):
                 moveOrder = [(user, userAttacked), (foe, foeAttacked)]
             elif moveNames[foe.moveset[foeChoice][0]].priority > moveNames[user.moveset[userChoice][0]].priority: 
                 moveOrder = [(foe, foeAttacked), (user, userAttacked)]
-        for attackerData in moveOrder:
+        for attackerData in moveOrder: #actually simulates the turn
             attacker = attackerData[0]
             if attacker.fainted == True:
                 continue
@@ -340,7 +338,7 @@ def turn(app):
             else:
                 defender = user
                 attackerChoice = foeChoice
-            attackSequence(app, attacker, defender, moveNames[attacker.moveset[attackerChoice][0]])
+            attackSequence(app, attacker, defender, moveNames[attacker.moveset[attackerChoice][0]]) #damage and state calculator
             attacker.moveset[attackerChoice][1] -= 1
             if defender.fainted == True:
                 if defender == foe:
@@ -351,7 +349,7 @@ def turn(app):
             app.gameOver = True
             return
         if user.fainted == True:
-            app.mode = "switchMode"
+            app.mode = "switchMode" #switches if the pokemon is dead, after the turn has ended
         if foe.fainted == True:
             switch(app, app.foeTeam, True)
     else:
@@ -359,27 +357,27 @@ def turn(app):
 
 def attackSequence(app, attacker, defender, move):
     missThreshold = move.accuracy * 100
-    hitCheck = random.randint(1, 100)
+    hitCheck = random.randint(1, 100) #miss potential, no damage
     if hitCheck > missThreshold:
         app.message += f"{attacker.name}'s {move.name} missed!\n"
         return
     percentBefore = round(defender.currentHP / defender.finalStats["HP"] * 100, 1)
-    damage = (((((2 * attacker.level) / 5) + 2) * move.power * (attacker.finalStats[move.uses] / defender.finalStats[move.hits])) / 50) + 2
-    if move.type in attacker.types:
+    damage = (((((2 * attacker.level) / 5) + 2) * move.power * (attacker.finalStats[move.uses] / defender.finalStats[move.hits])) / 50) + 2 #official pokemon damage formula
+    if move.type in attacker.types: #STAB (same type attack bonus)
         damage *= 1.5
-    roll = random.randint(85,100)
+    roll = random.randint(85,100) #gives a roll
     damage = roundHalfUp(damage * roll / 100)
-    critChance = random.randint(1, 16)
+    critChance = random.randint(1, 16) #crits
     if critChance == 1:
         damage = 1.5 * roundHalfUp(damage * 1.5)
     damageBeforeTypes = damage
-    for defenseType in defender.types:
+    for defenseType in defender.types: #type effectiveness multipliers
         if move.type in resists[defenseType]:
             damage /= 2
         elif move.type in weaknesses[defenseType]:
             damage *= 2
         elif move.type in immunities[defenseType]:
-            app.message += f"{defenseType[0].upper() + defenseType[1:]} types are immune to {attacker.name}'s {move.name}... \n"
+            app.message += f"{defenseType[0].upper() + defenseType[1:]} types are immune to {attacker.name}'s {move.name}... \n" #if immune return no damage
             return 
     defender.currentHP -= damage
     percentDamage = round(damage / defender.finalStats["HP"] * 100, 1)
@@ -389,14 +387,14 @@ def attackSequence(app, attacker, defender, move):
     if percentAfter <= 0:
         percentAfter = 0
     app.message += f"{attacker.name}'s {move.name} takes {percentDamage}% of {defender.name}'s HP! "
-    if critChance == 1:
+    if critChance == 1: #checks to see what needs to be added to the message
         app.message += "A critical hit! "
     if damage < damageBeforeTypes:
         app.message += "It's not very effective..."
     elif damage > damageBeforeTypes:
         app.message += "It's super effective!"
     app.message += f" {defender.name} has {percentAfter}% HP left.\n"
-    if defender.currentHP <= 0:
+    if defender.currentHP <= 0: # if dead modify object
         defender.currentHP = 0
         app.message += f"{defender.name} fainted!\n"
         defender.fainted = True
@@ -412,20 +410,20 @@ def switchMode_mousePressed(app, event):
             app.switchChoice = 1
         elif 2 * width < event.x <= 3 * width:
             app.switchChoice = 2
-        if app.switchChoice >= len(app.userTeam) - 1:
+        if app.switchChoice >= len(app.userTeam) - 1: # all the following conditionals merely ensure it is a legal switch
             return
         if app.userTeam[app.switchChoice].fainted == True:
             app.message = f'{app.userTeam[app.switchChoice]} has no energy left to battle!\n'
             return
-        if app.userTeam[app.switchChoice] == app.userTeam[0]:
+        if app.userTeam[app.switchChoice] == app.userTeam[0]: #if you're cancelling a switch
             app.mode = "battleMode"
             return
-        if app.userTeam[0].fainted == False:
+        if app.userTeam[0].fainted == False: # if it's a regular switch
             switch(app, app.userTeam)
             app.attackChoice = 4
             app.mode = "battleMode"
             turn(app)
-        else:
+        else: #if you're switching because you died
             switch(app, app.userTeam)
             app.mode = "battleMode"
     
@@ -433,13 +431,13 @@ def switch(app, team, bot = False):
     if team[-1] == 0:
         app.gameOver = True
         return
-    elif bot:
-        botMon = team[bestSwitch(app.userTeam, app.foeTeam, True)]
+    elif bot: #if bot then don't use user input
+        botMon = team[bestSwitch(app.userTeam, app.foeTeam, True)] #calls the state evaluator on every possible switch
         team.remove(botMon)
         team.insert(0, botMon)  
         app.message += f"{botMon.name} has switched in!\n"
         return 
-    newMon = team[app.switchChoice]
+    newMon = team[app.switchChoice] #switches the mon
     team.remove(newMon)
     team.insert(0, newMon)
     app.message += f"{newMon.name} has switched in!\n"
@@ -454,7 +452,7 @@ def switchMode_redrawAll(app, canvas):
     drawSwitch(app, canvas)
     drawChat(app, canvas)
 
-def drawSwitch(app, canvas):
+def drawSwitch(app, canvas): #draws the switch possibilites instead of moves
     width = app.width // 3
     for monSlot in range(len(app.userTeam) - 1):
         percent = app.userTeam[monSlot].currentHP / app.userTeam[monSlot].finalStats["HP"]
@@ -471,7 +469,7 @@ def drawSwitch(app, canvas):
 
 ###############################################################################
 #Win screen
-def endScreen_keyPressed(app, event):
+def endScreen_keyPressed(app, event): #restarts
     if event.key == "r":
         teamRefresh(app)
         app.mode = "battleMode"
@@ -484,20 +482,20 @@ def endScreen_redrawAll(app, canvas):
     drawVictoryMons(app, canvas)
     drawFinalTurn(app, canvas)
 
-def drawFinalTurn(app, canvas):
+def drawFinalTurn(app, canvas): #shows what happened on final turn since timerFired truncates it immediately
     splitMessage = app.message.splitlines()
     splitMessage[0] = "Final Turn"
     splitMessage = "\n".join(splitMessage)
     canvas.create_text(app.width * .5, app.height * .4, text = f"{splitMessage}",
                             fill = "black", font = f"Helvetica {int(15)} bold")
 
-def drawVictoryMons(app, canvas):
+def drawVictoryMons(app, canvas): #draws the mons from the winning team
     width = app.width // 3
     team = app.winner
     for monSlot in range(len(team) - 1):
         canvas.create_image(app.width * .2 + (monSlot * width), app.height * .775, image = ImageTk.PhotoImage(app.monSprites[team[monSlot].name]["front"]))
 
-def drawVictoryQuote(app, canvas):
+def drawVictoryQuote(app, canvas): #winning decal
     if app.winner == app.userTeam:
         canvas.create_image(app.width * .5, app.height * .2, image = ImageTk.PhotoImage(app.winImage))
     else:

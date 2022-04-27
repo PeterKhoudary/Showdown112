@@ -1,4 +1,4 @@
-class Move():
+class Move(): #class for all attacks
     def __init__(self, name, type, BP, accuracy, startPP, attacking, defending, priority):
         self.name = name
         self.type = type
@@ -12,7 +12,7 @@ class Move():
     def __str__(self):
         return self.name
 
-#List of available moves-
+#List of available moves
 dragonClaw = Move("Dragon Claw", "dragon", 80, 1, 24, "ATK", "DEF", 0)
 extremeSpeed = Move("Extreme Speed", "normal", 80, 1, 8, "ATK", "DEF", 2)
 earthquake = Move("Earthquake", "ground", 100, 1, 16, "ATK", "DEF", 0)
@@ -30,6 +30,7 @@ stoneEdge = Move("Stone Edge", "rock",  100, .8, 8, "ATK", "DEF", 0)
 bodySlam = Move("Body Slam", "normal", 85, .100, 24, "ATK", "DEF", 0)
 ironHead = Move("Iron Head", "steel", 80, 1, 24, "ATK", "DEF", 0)
 
+#maps a string to a move, again very useful
 moveNames = {"Dragon Claw": dragonClaw, "Extreme Speed": extremeSpeed,
              "Earthquake": earthquake, "Ice Beam": iceBeam,
              "Fire Blast": fireBlast, "Bug Buzz": bugBuzz,
@@ -39,7 +40,7 @@ moveNames = {"Dragon Claw": dragonClaw, "Extreme Speed": extremeSpeed,
              "Crunch": crunch, "Stone Edge": stoneEdge,
              "Body Slam": bodySlam, "Iron Head": ironHead}
 
-#Type chart
+#The following three dictionaries are effectively a type chart
 resists = {"fire" : {"fire", "grass", "ice", "bug", "steel"},
            "bug": {"grass", "fighting", "ground"},
            "dragon": {"fire", "water", "grass", "electric"},
@@ -94,6 +95,7 @@ immunities = {"fire" : {},
            "dark": {"psychic"},
            "steel": {"poison"}}
 
+#The colors given to moves when drawing them
 moveColors = {"fire" : "red",
            "bug": "green yellow",
            "dragon": "medium slate blue",

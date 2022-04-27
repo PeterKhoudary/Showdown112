@@ -1,6 +1,6 @@
 import math
 
-class Monster():
+class Monster(): #class for all pokemon
     level = 100
     IVs = {'HP': 31, 'ATK': 31, 'DEF': 31, 'SPATK': 31, 'SPDEF': 31, 'SPE': 31}
 
@@ -23,7 +23,7 @@ class Monster():
                 self.finalStats[stat] = self.finalStat(stat)
         self.fainted = False
 
-    def finalStat(self, stat):
+    def finalStat(self, stat): #sets acutal stats given level IVs EVs
         if stat == "HP":
             newStat = math.floor(.01 * (2 * self.baseStats["HP"] + self.IVs["HP"] + math.floor(.25 * self.EVs["HP"])) * self.level) + self.level + 10
             self.currentHP = newStat
@@ -34,7 +34,7 @@ class Monster():
     def __str__(self):
         return self.name
 
-#List of pokemon bases
+#List of pokemon bases, listing name, base stats, type, and moves they can learn
 dragoniteBase = {"name": "Dragonite",
                  "baseStats" : {'HP': 91, 'ATK': 134, 'DEF': 95, 'SPATK': 100, 'SPDEF': 100, 'SPE': 80},
                  "types": {"dragon", "flying"},
@@ -52,11 +52,11 @@ tyrantBase = {"name": "Tyranitar",
               "types": {"dark", "rock"},
               "movepool" : {"Stone Edge", "Crunch", "Earthquake", "Iron Head", "Dragon Claw", "Ice Beam", "Body Slam"}}
 
-#Monster names
+#Maps all monster names to a base, very useful later
 monNames = {"Dragonite": dragoniteBase, "Tyranitar": tyrantBase, 
             "Volcarona": volcBase, "Keldeo": keldBase}
 
-#Test Monsters
+#Monsters to be put in teams
 thugger = Monster(tyrantBase, 
                   {'HP': 252, 'ATK': 252, 'DEF': 0, 'SPATK': 4, 'SPDEF': 0, 'SPE': 0}, 
                   [['Crunch', 24], ['Stone Edge', 8], ['Dragon Claw', 24], ['Ice Beam', 16]])
@@ -70,9 +70,11 @@ blunder = Monster(keldBase,
                   {'HP': 4, 'ATK': 0, 'DEF': 0, 'SPATK': 252, 'SPDEF': 0, 'SPE': 252}, 
                   [['Secret Sword', 16], ['Hydro Pump', 8], ['Icy Wind', 24], ['Scald', 24]])
 
+#Teams to be battled with, last element represents number of pokemon alive
 test1 = [blunder, alder, thugger, 3]
 test2 = [lance, thugger, blunder, 3]
 test3 = [alder, thugger, lance, 3]
 test4 = [lance, alder, blunder, 3]
 
+#list of all teams and a string to print them with
 teamTuples = [("drag" , test1), ("volc", test2), ("keld", test3), ("tar", test4)]
