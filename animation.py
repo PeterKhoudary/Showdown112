@@ -1,3 +1,5 @@
+#The main app. Run this to play!
+
 from cmu_112_graphics import *
 from moveClass import *
 from monsterClass import *
@@ -119,9 +121,9 @@ def teamSelectMode_redrawAll(app, canvas):
 
 def drawTeamInfo(app, canvas): #displays who has what team and who use is currently picking for
     canvas.create_text(app.width * .1, app.height * .05, text = f'Player Team: {app.globalUserTeamName}',
-            fill = "black", font = f"Helvetica {int(.035 * app.width)} bold", anchor = W)
+            fill = "black", font = f"Helvetica {int(.0175 * app.width)} bold", anchor = W)
     canvas.create_text(app.width * .9, app.height * .05, text = f'AI Team: {app.globalFoeTeamName}',
-            fill = "black", font = f"Helvetica {int(.035 * app.width)} bold", anchor = E)
+            fill = "black", font = f"Helvetica {int(.0175 * app.width)} bold", anchor = E)
     if app.choosingFor == True:
         beingChosen = "Player"
     else:
@@ -150,6 +152,8 @@ def teamSelectMode_mousePressed(app, event):
         elif app.height * .3 <= event.y < app.height * .4:
             assignTeams(app, 2)
         elif app.height * .4 <= event.y < app.height * .5:
+            assignTeams(app, 3)
+        elif app.height * .5 <= event.y < app.height * .6:
             assignTeams(app, 3)
 
 def teamSelectMode_keyPressed(app, event):

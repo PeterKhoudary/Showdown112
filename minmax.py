@@ -1,10 +1,12 @@
+#This file contains everything necessary for a minmax algorithm to feed the AI a choice in the main app
+
 import copy
 import random
 import decimal
 from moveClass import *
 
 ###############################################################################
-#112 Helper functions
+#112 Helper functions https://www.cs.cmu.edu/~112/notes/notes-variables-and-functions.html#HelperFunctions
 def almostEqual(d1, d2, epsilon=10**-7):
     return (abs(d2 - d1) < epsilon)
 

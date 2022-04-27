@@ -1,3 +1,5 @@
+#This file contains the move class which is very important for state analysis, as well as all the moves in the game
+
 class Move(): #class for all attacks
     def __init__(self, name, type, BP, accuracy, startPP, attacking, defending, priority):
         self.name = name
@@ -8,9 +10,11 @@ class Move(): #class for all attacks
         self.uses = attacking
         self.hits = defending
         self.priority = priority
-    
+        moveNames[name] = self #adds it to a dictionary
     def __str__(self):
         return self.name
+
+moveNames = {}
 
 #List of available moves
 dragonClaw = Move("Dragon Claw", "dragon", 80, 1, 24, "ATK", "DEF", 0)
@@ -29,16 +33,27 @@ crunch = Move("Crunch", "dark", 80, 1, 24, "ATK", "DEF", 0)
 stoneEdge = Move("Stone Edge", "rock",  100, .8, 8, "ATK", "DEF", 0)
 bodySlam = Move("Body Slam", "normal", 85, .100, 24, "ATK", "DEF", 0)
 ironHead = Move("Iron Head", "steel", 80, 1, 24, "ATK", "DEF", 0)
-
-#maps a string to a move, again very useful
-moveNames = {"Dragon Claw": dragonClaw, "Extreme Speed": extremeSpeed,
-             "Earthquake": earthquake, "Ice Beam": iceBeam,
-             "Fire Blast": fireBlast, "Bug Buzz": bugBuzz,
-             "Hurricane": hurricane, "Psychic": psychic,
-             "Scald": scald, "Secret Sword": secretSword,
-             "Hydro Pump": hydroPump, "Icy Wind": icyWind,
-             "Crunch": crunch, "Stone Edge": stoneEdge,
-             "Body Slam": bodySlam, "Iron Head": ironHead}
+energyBall = Move("Energy Ball", "grass", 80, 1, 16, "SPATK", "SPDEF", 0)
+thunderbolt = Move("Thunderbolt", "electric", 95, 1, 24, "SPATK", "SPDEF", 0)
+sludgeBomb = Move("Sludge Bomb", "poison", 90, 1, 16, "SPATK", "SPDEF", 0)
+shadowBall = Move("Shadow Ball", "ghost", 80, 1, 24, "SPATK", "SPDEF", 0)
+airSlash = Move("Air Slash", "flying", 75, .95, 32, "SPATK", "SPDEF", 0)
+triAttack = Move("Tri Attack", "normal", 80, 100, 16, "SPATK", "SPDEF", 0)
+brickBreak = Move("Brick Break", "fighting", 75, 1, 24, "ATK", "DEF", 0)
+bulletPunch = Move("Bullet Punch", "steel", 40, 1, 48, "ATK", "DEF", 1)
+xScissor = Move("X-Scissor", "bug", 80, 1, 24, "ATK", "DEF", 0)
+aquaTail = Move("Aqua Tail", "water", 90, 1, 16, "ATK", "DEF", 0)
+dragonPulse = Move("Dragon Pulse", "dragon", 90, 1, 16, "SPATK", "SPDEF", 0)
+thunderPunch = Move("Thunder Punch", "electric", 75, 1, 24, "ATK", "DEF", 0)
+nightSlash = Move("Night Slash", "dark", 70, 1, 24, "ATK", "DEF", 0)
+iceShard = Move("Ice Shard", "ice", 40, 1, 48, "ATK", "DEF", 1)
+icePunch = Move("Ice Punch", "ice", 70, 1, 24, "ATK", "DEF", 0)
+rockSlide = Move("Rock Slide", "rock", 75, .9, 16, "ATK", "DEF", 0)
+focusBlast = Move("Focus Blast", "fighting", 120, .7, 8, "SPATK", "SPDEF", 0)
+flamethrower = Move("Flamethrower", "fire", 95, 1, 24, "SPATK", "SPDEF", 0)
+acrobatics = Move("Acrobatics", "flying", 110, 1, 24, "ATK", "DEF", 0)
+bodyPress = Move("Body Press", "fighting", 80, 1, 16, "DEF", "DEF", 0)
+flashCannon = Move("Flash Cannon", "steel", 8, 1, 16, "SPATK", "SPDEF", 0)
 
 #The following three dictionaries are effectively a type chart
 resists = {"fire" : {"fire", "grass", "ice", "bug", "steel"},
@@ -108,7 +123,7 @@ moveColors = {"fire" : "red",
            "fighting": "indian red",
            "poison": "dark magenta",
            "ground": "tan",
-           "psychic": "Fuchsia",
+           "psychic": "fuchsia",
            "rock": "saddle brown",
            "ghost": "indigo",
            "dark": "black",
