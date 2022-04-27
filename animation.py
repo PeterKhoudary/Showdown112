@@ -25,7 +25,7 @@ def appStarted(app):
             app.monSprites[mon][side] = app.scaleImage(app.monSprites[mon][side], 2)
     app.helpMessage = '''This game is point and click. If at any time you wish to exit the current mode, press the "b" key.
                     \nTeam select: Here you pick which teams will be fought with.\nPress the "t" button to toggle which team you are selecting for.
-                    \nBattle Mode: Pick your move/switch with a mouse click, and choose your switch with another click. If you decide to cancel your switch, just click the pokemon currently in battle\nIf you press "r" at any time during the battle or on the result screen, the battle state will reset. 
+                    \nBattle Mode: Pick your move/switch with a mouse click, and choose your switch with another click. \nIf you decide to cancel your switch, just click the pokemon currently in battle\nIf you press "r" at any time during the battle or on the result screen, the battle state will reset. 
                     \nThe battle state will also reset whenever you return to the mode selection screen.
                     \nEnjoy!'''
     app.choosingFor = True
@@ -103,8 +103,8 @@ def modeSelect_mousePressed(app, event):
 ###############################################################################
 #Help Mode
 def helpMode_redrawAll(app, canvas):
-    canvas.create_image(app.width // 2, app.height *.55, image = ImageTk.PhotoImage(app.helpSelectImage))
-    canvas.create_rectangle(0, 0, app.width, app.height // 2, fill = "black")
+    canvas.create_image(app.width // 2, app.height // 2, image = ImageTk.PhotoImage(app.helpSelectImage))
+    canvas.create_rectangle(0, 0, app.width, app.height * .525, fill = "black")
     canvas.create_text(app.width * .01, app.height * .01, text = app.helpMessage,
             fill = "light blue", font = f"Helvetica {int(.015 * app.width)} bold", anchor = NW)
 
