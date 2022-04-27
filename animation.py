@@ -1,17 +1,18 @@
 from cmu_112_graphics import *
-from turn import *
-from damageCalc import *
 from moveClass import *
 from monsterClass import *
-
-#ONCE MINMAX IS FINISHED REMOVE ALL RANDOM ELEMENTS AND SWITCH PROPER
+from minmax import *
 
 ###############################################################################
-#Main App
+#Variable assignments
 def appStarted(app):
-    app.mode = "splashScreenMode"
+    app.mode = "titleMode"
+    app.titleImage = app.loadImage("pmd.png")
+    app.modeSelectImage = app.loadImage("ocean.png")
+    app.teamSelectImage = app.loadImage("shaymins.jpg")
+    app.musicSelect = app.loadImage("harmonica.jpg")
     app.battleBackground = app.scaleImage(app.loadImage("starlight.png"), 1/4)
-    app.pokemonLogoStart = app.scaleImage(app.loadImage("pokemonLogo.png"), 1/4)
+    app.pokemonLogo = app.scaleImage(app.loadImage("logo.png"), 1)
     app.monSprites = dict()
     app.monIcons = dict()
     for mon in monNames:
@@ -29,25 +30,28 @@ def appStarted(app):
     app.switchChoice = 0
     app.userAttacked = True
     app.winQuote = ''
+    app.winImage = app.loadImage("youwin.png")
+    app.loseImage = app.scaleImage(app.loadImage("youlose.png"), 8/9)
 
 ###############################################################################
-#Title Screen
-def splashScreenMode_redrawAll(app, canvas):
+#Title screen
+def titleMode_redrawAll(app, canvas):
     least =  min(app.width, app.height)
-    canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
-    canvas.create_text(app.width // 2, app.height // 5, 
-                       text = "Pokemon Showdown112!", fill = "silver", 
-                       font = f"Helvetica {int(.08 * least)} bold")
+    canvas.create_image(app.width // 2, app.height // 2, 
+                        image = ImageTk.PhotoImage(app.titleImage))
+    canvas.create_text(app.width * .475, app.height // 7, 
+                       text = "Showdown112!", fill = "black", 
+                       font = f"Helvetica {int(.08 * least)} bold", anchor = W)
     canvas.create_text(app.width // 2, app.height * .3, 
-                       text = "#Agency", fill = "silver", 
+                       text = "Press Enter...", fill = "black", 
                        font = f"Helvetica {int(.04 * least)} bold")
-    canvas.create_text(app.width // 2, app.height * .9, 
-                       text = "Press Enter...",fill = "silver", 
-                       font = f"Helvetica {int(.03 * least)} bold")
-    canvas.create_image(app.width // 2, app.height * .6, 
-                        image = ImageTk.PhotoImage(app.pokemonLogoStart))
+    canvas.create_text(app.width * .7, app.height * .975, 
+                       text = "Peter Khoudary CMU 15-112 S22",fill = "black", 
+                       font = f"Helvetica {int(.025 * least)} bold", anchor = W)
+    canvas.create_image(app.width * .3, app.height // 7, 
+                        image = ImageTk.PhotoImage(app.pokemonLogo))
 
-def splashScreenMode_keyPressed(app, event):
+def titleMode_keyPressed(app, event):
     if event.key == "Enter":
         app.mode = "modeSelect"
 
@@ -56,29 +60,33 @@ def splashScreenMode_keyPressed(app, event):
 def modeSelect_redrawAll(app, canvas):
     leftBound, rightBound = .2 * app.width, .8 * app.width
     least =  min(app.width, app.height)
-    canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
-    canvas.create_rectangle(leftBound, .1 * app.height, rightBound, .3 * app.height, fill = "white")
-    canvas.create_text(app.width // 2, app.height * .2, text = "Teambuilder",
-    fill = "Blue", font = f"Helvetica {int(.05 * least)} bold")
-    canvas.create_rectangle(leftBound, .4 * app.height, rightBound, .6 * app.height, fill = "white")
-    canvas.create_text(app.width // 2, app.height * .5, text = "Premade Teams",
-    fill = "Blue", font = f"Helvetica {int(.05 * least)} bold")
-    canvas.create_rectangle(leftBound, .7 * app.height, rightBound, .9 * app.height, fill = "white")
+    canvas.create_image(app.width // 2, app.height // 2, 
+                        image = ImageTk.PhotoImage(app.modeSelectImage))
+    canvas.create_rectangle(leftBound, .1 * app.height, rightBound, .3 * app.height, fill = "black")
+    canvas.create_text(app.width // 2, app.height * .2, text = "Music",
+    fill = "light blue", font = f"Helvetica {int(.05 * least)} bold")
+    canvas.create_rectangle(leftBound, .4 * app.height, rightBound, .6 * app.height, fill = "black")
+    canvas.create_text(app.width // 2, app.height * .5, text = "Teams",
+    fill = "light blue", font = f"Helvetica {int(.05 * least)} bold")
+    canvas.create_rectangle(leftBound, .7 * app.height, rightBound, .9 * app.height, fill = "black")
     canvas.create_text(app.width // 2, app.height * .8, text = "Battle Start",
-    fill = "Blue", font = f"Helvetica {int(.05 * least)} bold")
+    fill = "light blue", font = f"Helvetica {int(.05 * least)} bold")
 
 def modeSelect_keyPressed(app, event):
     if event.key == "b":
-        app.mode = "splashScreenMode"
+        app.mode = "titleMode"
 
 def modeSelect_mousePressed(app, event):
     leftBound, rightBound = .2 * app.width, .8 * app.width
     if leftBound < event.x < rightBound:
         if .7 * app.height < event.y < .9 * app.height:
-            app.mode = "battleMode"
+            if app.gameOver:
+                app.mode = "endScreen"
+            else:
+                app.mode = "battleMode"
             
 ###############################################################################
-#Battle Mode
+#Battle mode
 def battleMode_redrawAll(app, canvas):
     canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
     canvas.create_image(app.width // 2, app.height * .275, image = ImageTk.PhotoImage(app.battleBackground))
@@ -95,6 +103,7 @@ def battleMode_timerFired(app):
         else:
             app.winner = app.userTeam
             app.winQuote = "Player wins!"
+        app.mode = "endScreen"
             
 def battleMode_keyPressed(app, event):
     if event.key == "r":
@@ -111,13 +120,10 @@ def drawChat(app, canvas):
     least = min(app.width, app.height)
     canvas.create_text(app.width * .01, app.height * .78, text = f"{app.message}", anchor = NW,
                             fill = "white", font = f"Helvetica {int(.015 * least)} bold")
-    if app.gameOver:
-        canvas.create_text(app.width * .5, app.height * .25, text = f"{app.winQuote}",
-                            fill = "orange", font = f"Times {int(.225 * least)} bold")
 
 def drawHUD(app, canvas):
-    barLength = app.width * .4
-    barWidth = app.height * .05
+    barLength = app.width * .35
+    barWidth = app.height * .02
     userFill, foeFill = "green", "green"
     userPercent = app.userTeam[0].currentHP / app.userTeam[0].finalStats["HP"]
     foePercent = app.foeTeam[0].currentHP / app.foeTeam[0].finalStats["HP"]
@@ -131,16 +137,36 @@ def drawHUD(app, canvas):
             foeFill = "red"
         else:
             foeFill = "yellow"
-    canvas.create_rectangle(app.width * .01, app. height * .05, app.width * .01 + barLength, app.height * .05 + barWidth, fill = None)
-    canvas.create_rectangle(app.width * .01, app. height * .05, app.width * .01 + barLength * userPercent, app.height * .05 + barWidth, fill = userFill)
-    canvas.create_rectangle(app.width * .05, app. height * .2, app.width * .05 + barLength, app.height * .2 + barWidth, fill = None)
-    canvas.create_rectangle(app.width * .05, app. height * .2, app.width * .05 + barLength * foePercent, app.height * .2 + barWidth, fill = foeFill)
-    
+    #User health bar
+    canvas.create_rectangle(app.width * .63, app. height * .6, app.width, app.height * .7 + barWidth, fill = "silver")
+    canvas.create_rectangle(app.width * .64, app. height * .65, app.width * .64 + barLength, app.height * .65 + barWidth, fill = None)
+    canvas.create_rectangle(app.width * .64, app. height * .65, app.width * .64 + barLength * userPercent, app.height * .65 + barWidth, fill = userFill)
+    canvas.create_text(app.width * .64, app.height * .65, text = f"{app.userTeam[0].name}",
+                            fill = "black", font = f"Helvetica {int(20)} bold", anchor = SW)
+    canvas.create_text(app.width * .64, app.height * .67, text = f"Lv. {app.userTeam[0].level}",
+                            fill = "black", font = f"Helvetica {int(20)} bold", anchor = NW)
+    canvas.create_text(app.width * .99, app.height * .65, text = f"{round(app.userTeam[0].currentHP / app.userTeam[0].finalStats['HP'] * 100, 2)}%",
+                            fill = "black", font = f"Helvetica {int(20)} bold", anchor = SE)
+    canvas.create_text(app.width * .99, app.height * .67, text = f"{app.userTeam[0].currentHP} / {app.userTeam[0].finalStats['HP']}",
+                            fill = "black", font = f"Helvetica {int(20)} bold", anchor = NE)
+    #AI health bar
+    canvas.create_rectangle(0, app. height * .025, app.width * .02 + barLength, app.height * .125 + barWidth, fill = "silver")
+    canvas.create_rectangle(app.width * .01, app. height * .075, app.width * .01 + barLength, app.height * .075 + barWidth, fill = None)
+    canvas.create_rectangle(app.width * .01, app. height * .075, app.width * .01 + barLength * foePercent, app.height * .075 + barWidth, fill = foeFill)
+    canvas.create_text(app.width * .01, app.height * .075, text = f"{app.foeTeam[0].name}",
+                            fill = "black", font = f"Helvetica {int(20)} bold", anchor = SW)
+    canvas.create_text(app.width * .01, app.height * .095, text = f"Lv. {app.foeTeam[0].level}",
+                            fill = "black", font = f"Helvetica {int(20)} bold", anchor = NW)
+    canvas.create_text(app.width * .36, app.height * .075, text = f"{round(app.foeTeam[0].currentHP / app.foeTeam[0].finalStats['HP'] * 100, 2)}%",
+                            fill = "black", font = f"Helvetica {int(20)} bold", anchor = SE)
+    canvas.create_text(app.width * .36, app.height * .095, text = f"{app.foeTeam[0].currentHP} / {app.foeTeam[0].finalStats['HP']}",
+                            fill = "black", font = f"Helvetica {int(20)} bold", anchor = NE)
+
 def drawPokemon(app, canvas):
     if app.foeTeam[0].fainted == False:
         canvas.create_image(app.width * .74, app.height * .223, image = ImageTk.PhotoImage(app.monSprites[app.foeTeam[0].name]["front"]))
     if app.userTeam[0].fainted == False:
-        canvas.create_image(app.width * .3, app.height * .542, image = ImageTk.PhotoImage(app.monSprites[app.userTeam[0].name]["back"]))
+        canvas.create_image(app.width * .3, app.height * .5475, image = ImageTk.PhotoImage(app.monSprites[app.userTeam[0].name]["back"]))
 
 def drawMoves(app, canvas):
     least =  min(app.width, app.height)
@@ -190,31 +216,26 @@ def turn(app):
     userLeft, foeLeft = app.userTeam[-1], app.foeTeam[-1]
     if userLeft > 0 and foeLeft > 0:
         app.turnCount += 1
-        print(f'user mons = {userLeft}, bot mons = {foeLeft}')
         userLeft, foeLeft = app.userTeam[-1], app.foeTeam[-1]
         userAttacked, foeAttacked = True, True
         app.message = f'Turn {app.turnCount}\n'
-        # placeholder for minmax
+        foeChoice = minmax((app.userTeam, app.foeTeam), 2, True)[1]
+        if type(foeChoice) == list:
+                switch(app, app.foeTeam, True) 
+                foe = app.foeTeam[0]
+                foeAttacked = False
         if userChoice == 4:
             app.message += f'{user.name} has switched in!\n'
             user = app.userTeam[0]
             userAttacked = False
-        foeChoice = random.randint(0, 4) #random AI choice
-        if foeChoice == 4:
-            if app.foeTeam[-1] == 1:
-                while foeChoice == 4:
-                    foeChoice = random.randint(0, 4)
-            else:
-                switch(app, app.foeTeam, True) 
-                foe = app.foeTeam[0]
-                foeAttacked = False
         if foe.finalStats["SPE"] > user.finalStats["SPE"]:
             moveOrder = [(foe, foeAttacked), (user, userAttacked)]
         else:
             moveOrder = [(user, userAttacked), (foe, foeAttacked)]
-        for switchCheck in moveOrder: #check for switches
-            if switchCheck[1] == False:
-                moveOrder.remove(switchCheck)
+        if moveOrder[1][1] == False:
+            moveOrder.pop(1)
+        if moveOrder[0][1] == False:
+            moveOrder.pop(0) #switch checking
         if len(moveOrder) == 2: #priority check
             if moveNames[user.moveset[userChoice][0]].priority > moveNames[foe.moveset[foeChoice][0]].priority:
                 moveOrder = [(user, userAttacked), (foe, foeAttacked)]
@@ -295,19 +316,13 @@ def attackSequence(app, attacker, defender, move):
 #Switch Mode
 def switchMode_mousePressed(app, event):
     if event.y < .9 * app.width:
-        width = app.width // 6
+        width = app.width // 3
         if 0 < event.x <= width:
             app.switchChoice = 0
         elif width < event.x <= 2 * width:
             app.switchChoice = 1
         elif 2 * width < event.x <= 3 * width:
             app.switchChoice = 2
-        elif 3 * width < event.x <= 4 * width:
-            app.switchChoice = 3
-        elif 4 * width < event.x <= 5 * width:
-            app.switchChoice = 4
-        else:
-            app.switchChoice = 5
         if app.switchChoice >= len(app.userTeam) - 1:
             return
         if app.userTeam[app.switchChoice].fainted == True:
@@ -326,16 +341,11 @@ def switchMode_mousePressed(app, event):
             app.mode = "battleMode"
     
 def switch(app, team, bot = False):
-    currentMon = team[0]
     if team[-1] == 0:
         app.gameOver = True
         return
     elif bot:
-        botChoice = random.randint(0, len(team) - 2)
-        botMon = team[botChoice]
-        while botMon == currentMon or botMon.fainted == True:
-            botChoice = random.randint(0, len(team) - 2)
-            botMon = team[botChoice]
+        botMon = team[bestSwitch(app.userTeam, app.foeTeam, True)]
         team.remove(botMon)
         team.insert(0, botMon)  
         app.message += f"{botMon.name} has switched in!\n"
@@ -356,13 +366,56 @@ def switchMode_redrawAll(app, canvas):
     drawChat(app, canvas)
 
 def drawSwitch(app, canvas):
-    width = app.width // 6
+    width = app.width // 3
     for monSlot in range(len(app.userTeam) - 1):
+        percent = app.userTeam[monSlot].currentHP / app.userTeam[monSlot].finalStats["HP"]
         if app.userTeam[monSlot].fainted == True:
+            fill = "black"
+        elif percent <= .5:
+            fill = "yellow"
+        elif percent <= .2:
             fill = "red"
         else:
-            fill = "white"
+            fill = "green"
         canvas.create_rectangle(width * monSlot, app. height * .9, width * monSlot + width, app.height, fill = fill)
         canvas.create_image(width * (.5 +  monSlot), app.height * .95, image = ImageTk.PhotoImage(app.scaleImage(app.monSprites[app.userTeam[monSlot].name]["front"], 1/5)))
+
+###############################################################################
+#Win screen
+def endScreen_keyPressed(app, event):
+    if event.key == "r":
+        app.gameOver = False
+        app.winQuote = ''
+        app.userTeam = copy.deepcopy(globalUserTeam)
+        app.foeTeam = copy.deepcopy(globalFoeTeam)
+        app.message = f'What will {app.userTeam[0]} do?'
+        app.turnCount = 0
+        app.mode = "battleMode"
+    if event.key == "b":
+        app.mode = "modeSelect"
+
+def endScreen_redrawAll(app, canvas):
+    drawVictoryQuote(app, canvas)
+    drawVictoryMons(app, canvas)
+    drawFinalTurn(app, canvas)
+
+def drawFinalTurn(app, canvas):
+    splitMessage = app.message.splitlines()
+    splitMessage[0] = "Final Turn"
+    splitMessage = "\n".join(splitMessage)
+    canvas.create_text(app.width * .5, app.height * .4, text = f"{splitMessage}",
+                            fill = "black", font = f"Helvetica {int(15)} bold")
+
+def drawVictoryMons(app, canvas):
+    width = app.width // 3
+    team = app.winner
+    for monSlot in range(len(team) - 1):
+        canvas.create_image(app.width * .2 + (monSlot * width), app.height * .775, image = ImageTk.PhotoImage(app.monSprites[team[monSlot].name]["front"]))
+
+def drawVictoryQuote(app, canvas):
+    if app.winner == app.userTeam:
+        canvas.create_image(app.width * .5, app.height * .2, image = ImageTk.PhotoImage(app.winImage))
+    else:
+        canvas.create_image(app.width * .5, app.height * .175, image = ImageTk.PhotoImage(app.loseImage))
 
 runApp(width = 1200, height = 700)

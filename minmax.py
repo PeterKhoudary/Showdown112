@@ -1,14 +1,18 @@
-from turn import *
-from damageCalc import *
-print("Battle AI")
-
-infinity = 1000 #idk we'll see how this needs to be tweaked, minmaxing is fun cuz the heuristic is subjective
-
-#WRITE HEURISTIC
+import copy
+import random
+import decimal
+from moveClass import *
 
 ###############################################################################
-#Game state will be represented as a tuple state = (playerTeam, botTeam)
-#Where playerTeam and botTeam are copy.deepcopies of the teams sent by app
+#112 Helper functions
+def almostEqual(d1, d2, epsilon=10**-7):
+    return (abs(d2 - d1) < epsilon)
+
+def roundHalfUp(d):
+    rounding = decimal.ROUND_HALF_UP
+    return int(decimal.Decimal(d).to_integral_value(rounding=rounding))
+
+infinity = 1000 #idk we'll see how this needs to be tweaked, minmaxing is fun cuz the heuristic writing is subjective
 
 ###############################################################################
 #all possible Moves
@@ -25,7 +29,7 @@ def allPossibleMoves(team):
             if team[monSlot].fainted:
                 continue
             else:
-                possibleMoves.append((4, monSlot))
+                possibleMoves.append([4, monSlot])
         return possibleMoves
 
 def allBranches(state):
@@ -49,6 +53,8 @@ def allPossibleSwitches(team):
 #nondestructive state editing
 def botSwitch(team, choice):
     if team[-1] == 0:
+        return
+    elif choice == None:
         return
     else:
         botMon = team[choice]
@@ -84,11 +90,8 @@ def botAttackSequence(attacker, defender, move):
     percentAfter = round(defender.currentHP / defender.finalStats["HP"] * 100, 1)
     if percentAfter <= 0:
         percentAfter = 0
-    #print(f"{attacker.name}'s {move.name} takes {percentDamage}% of {defender.name}'s HP! ")
-    #print(f" {defender.name} has {percentAfter}% HP left.\n")
     if defender.currentHP <= 0:
         defender.currentHP = 0
-        #print(f"{defender.name} fainted!\n")
         defender.fainted = True  
 
 def botTurn(playerTeam, playerChoice, botTeam, botChoice):
@@ -96,11 +99,11 @@ def botTurn(playerTeam, playerChoice, botTeam, botChoice):
     playerLeft, botLeft = playerTeam[-1], botTeam[-1]
     if playerLeft > 0 and botLeft > 0:
         playerAttacked, botAttacked = True, True
-        if type(playerChoice) == tuple:
+        if type(playerChoice) == list:
             botSwitch(playerTeam, playerChoice[1])
             player = playerTeam[0]
             playerAttacked = False
-        if type(botChoice) == tuple:
+        if type(botChoice) == list:
             botSwitch(botTeam, botChoice[1])
             bot = botTeam[0]
             botAttacked = False
@@ -135,27 +138,33 @@ def botTurn(playerTeam, playerChoice, botTeam, botChoice):
                 else:
                     playerTeam[-1] -= 1
     if playerTeam[0].fainted and playerTeam[-1] > 0:
-        switchChoices = allPossibleSwitches(playerTeam)
-        bestChoice, bestScore = 1, infinity
-        for choice in switchChoices:
-            playerTeamCopy, botTeamCopy = copy.deepcopy(playerTeam), copy.deepcopy(botTeam)
-            newState = (playerTeamCopy, botTeamCopy)
-            newScore = stateEvaluation(newState)
-            if newScore < bestScore:
-                bestChoice, bestScore = choice, newScore
+        bestChoice = bestSwitch(playerTeam, botTeam, False)
         botSwitch(playerTeam, bestChoice)
     if botTeam[0].fainted and playerTeam[-1] > 0:
-        switchChoices = allPossibleSwitches(playerTeam)
-        bestChoice, bestScore = 1, -infinity
-        for choice in switchChoices:
-            playerTeamCopy, botTeamCopy = copy.deepcopy(playerTeam), copy.deepcopy(botTeam)
-            newState = (playerTeamCopy, botTeamCopy)
-            newScore = stateEvaluation(newState)
-            if newScore > bestScore:
-                bestChoice, bestScore = choice, newScore
+        bestChoice = bestSwitch(playerTeam, botTeam, True)
         botSwitch(botTeam, bestChoice)
     return playerTeam, botTeam
-        
+
+def bestSwitch(playerTeam, botTeam, max):
+    if max:
+        switchChoices = allPossibleSwitches(botTeam)
+    else:
+        switchChoices = allPossibleSwitches(playerTeam)
+    bestChoice, bestScore = None, infinity
+    for choice in switchChoices:
+            newState = [copy.deepcopy(playerTeam), copy.deepcopy(botTeam)]
+            if max:
+                botSwitch(newState[0], choice)
+            else:
+                botSwitch(newState[1], choice)
+            newScore = stateEvaluation(newState)
+            if max:
+                if newScore > -bestScore:
+                    bestChoice, bestScore = choice, newScore
+            else:
+                if newScore < bestScore:
+                    bestChoice, bestScore = choice, newScore
+    return bestChoice
 
 ###############################################################################
 #state evaluation heuristic
@@ -166,9 +175,18 @@ def stateEvaluation(newState):
     elif botTeam[-1] == 0:
         return -infinity
     score = 0
-    bot, player = botTeam[0], playerTeam[0]
     monDifference = botTeam[-1] - playerTeam[-1]
-    score += (monDifference * 50) #mon difference
+    score += (monDifference * 75) #mon difference
+    remainingPlayers, remainingBots = [], []
+    for team in[(playerTeam, remainingPlayers), (botTeam, remainingBots)]:
+        for monSlot in range(len(team[0]) - 1):
+            mon = team[0][monSlot]
+            if mon.fainted:
+                continue
+            else:
+                team[1].append(mon)
+    playerTeam, botTeam = remainingPlayers, remainingBots
+    bot, player = botTeam[0], playerTeam[0]
     for playerMon in playerTeam[:-1]: #type matchups 
         for playerType in playerMon.types:
             for botType in bot.types:
@@ -201,37 +219,33 @@ def minmax(state, depth, max):
         return stateEvaluation(state)
     if max == True:
         bestScore = -infinity
-        bestMove = None
+        bestMove = 0
         for move in allBranches(state):
             playerMove, botMove = move[0], move[1]
             playerTeamCopy, botTeamCopy = copy.deepcopy(state[0]), copy.deepcopy(state[1])
             newState = botTurn(playerTeamCopy, playerMove, botTeamCopy, botMove)
             newEval = minmax(newState, depth - 1, False)
-            if type(newEval) == tuple:
+            if type(newEval) == list:
                 newScore = newEval[0]
             else:
                 newScore = newEval
             if newScore > bestScore:
                 bestScore, bestMove = newScore, botMove
-        return bestScore, bestMove
+        return [bestScore, bestMove]
     else:
         bestScore = infinity
-        bestMove = None
+        bestMove = 0
         for move in allBranches(state):
             playerMove, botMove = move[0], move[1]
             playerTeamCopy, botTeamCopy = copy.deepcopy(state[0]), copy.deepcopy(state[1])
             newState = botTurn(playerTeamCopy, playerMove, botTeamCopy, botMove)
             newEval = minmax(newState, depth - 1, False)
-            if type(newEval) == tuple:
+            if type(newEval) == list:
                 newScore = newEval[0]
             else:
                 newScore = newEval
             if newScore < bestScore:
                 bestScore, bestMove = newScore, botMove
-        return bestScore, bestMove
+        return [bestScore, bestMove]
 
-myTeam, theirTeam = copy.deepcopy(globalUserTeam), copy.deepcopy(globalFoeTeam)
-testState = (myTeam, theirTeam)
-
-print(minmax(testState, 3, True))
 

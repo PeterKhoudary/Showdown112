@@ -1,5 +1,4 @@
 import math
-from moveClass import *
 
 class Monster():
     level = 100
@@ -34,40 +33,6 @@ class Monster():
     
     def __str__(self):
         return self.name
-    
-    def setEVs(self):
-        self.EVtotal = 0
-        for stat in self.EVs:
-            print(f'Current EV total = {self.EVtotal}, {508 - self.EVtotal} remaining')
-            EVamount = int(input(f'How many {stat} EVs? (0 - 252): '))
-            while (EVamount < 0 or EVamount > 255 or self.EVtotal + EVamount > 508):
-                if EVamount < 0:
-                    EVamount = int(input("Can't have negative EVs, try again (0 - 252): "))
-                elif EVamount > 255:
-                    EVamount = int(input("One stat can't have more than 252 EVs, try again (0 - 252): "))
-                else:
-                    EVamount = int(input(f"A single monster can only have 508 EVs, you can only pick a number between 0 and {508 - self.EVtotal}: "))
-            self.EVtotal += EVamount
-            self.EVs[stat] = EVamount
-        for stat in self.finalStats:
-            self.finalStats[stat] = self.finalStat(stat)
-        return f'EVs = {self.EVs}'
-    
-    def setMoves(self):
-        print(f"Potential moves for {self.name}:")
-        for name in self.movepool:
-            print(name, end = "    ")
-        print()
-        for moveSlot in range(4):
-            moveChoice = input(f'Pick move {moveSlot + 1} for {self.name}: ')
-            while moveChoice not in self.movepool or moveChoice in self.moveset:
-                if moveChoice not in self.movepool:
-                    moveChoice = input(f"{self.name} can't learn {moveChoice}, try again: ")
-                else:
-                    moveChoice = input(f"{self.name} already knows {moveChoice}, try again: ")
-            self.moveset.append([moveChoice,moveNames[moveChoice].PP])
-        print(self.moveset)
-    
 
 #List of pokemon bases
 dragoniteBase = {"name": "Dragonite",
@@ -105,9 +70,8 @@ blunder = Monster(keldBase,
                   {'HP': 4, 'ATK': 0, 'DEF': 0, 'SPATK': 252, 'SPDEF': 0, 'SPE': 252}, 
                   [['Secret Sword', 16], ['Hydro Pump', 8], ['Icy Wind', 24], ['Scald', 24]])
 
-testMons = [thugger, alder, lance, blunder]
-# for mon in testMons:
-#     print(mon.name, mon.finalStats, mon.moveset)
+globalUserTeam = [blunder, alder, 2]
+globalFoeTeam = [lance, thugger, 2]
 
 # def teamRefresh(userTeam, foeTeam):
 #     for team in [userTeam, foeTeam]:
