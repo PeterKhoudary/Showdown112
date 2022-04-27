@@ -128,8 +128,8 @@ def drawTeamInfo(app, canvas): #displays who has what team and who use is curren
         beingChosen = "Player"
     else:
         beingChosen = "AI"
-    canvas.create_rectangle(app.width // 4, app.height * .9, app.width * .75, app.height * .985, fill = "light blue")
-    canvas.create_text(app.width // 2, app.height * .94, text = f'Choosing for: {beingChosen}', font = f"Helvetica {int(.0325 * app.width)} bold", fill = "black")
+    canvas.create_rectangle(app.width // 4, app.height * .7, app.width * .75, app.height * .785, fill = "light blue")
+    canvas.create_text(app.width // 2, app.height * .74, text = f'Choosing for: {beingChosen}', font = f"Helvetica {int(.0325 * app.width)} bold", fill = "black")
 
 def drawTeams(app, canvas): #draws icon and team names for user to pick
     slot = 0
@@ -463,9 +463,10 @@ def drawSwitch(app, canvas): #draws the switch possibilites instead of moves
         if app.userTeam[monSlot].fainted == True:
             fill = "black"
         elif percent <= .5:
-            fill = "yellow"
-        elif percent <= .2:
-            fill = "red"
+            if percent <= .2:
+                fill = "red"
+            else:
+                fill = "yellow"
         else:
             fill = "green"
         canvas.create_rectangle(width * monSlot, app. height * .9, width * monSlot + width, app.height, fill = fill)
