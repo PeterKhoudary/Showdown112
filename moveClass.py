@@ -53,7 +53,7 @@ focusBlast = Move("Focus Blast", "fighting", 120, .7, 8, "SPATK", "SPDEF", 0)
 flamethrower = Move("Flamethrower", "fire", 95, 1, 24, "SPATK", "SPDEF", 0)
 acrobatics = Move("Acrobatics", "flying", 110, 1, 24, "ATK", "DEF", 0)
 bodyPress = Move("Body Press", "fighting", 80, 1, 16, "DEF", "DEF", 0)
-flashCannon = Move("Flash Cannon", "steel", 8, 1, 16, "SPATK", "SPDEF", 0)
+flashCannon = Move("Flash Cannon", "steel", 80, 1, 16, "SPATK", "SPDEF", 0)
 
 #The following three dictionaries are effectively a type chart
 resists = {"fire" : {"fire", "grass", "ice", "bug", "steel"},

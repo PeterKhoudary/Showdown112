@@ -214,7 +214,10 @@ def stateEvaluation(newState):
                 score -= 10
     for playerMon in playerTeam:
         playerPercent = player.currentHP / player.finalStats["HP"]
-        score += (1 / playerPercent) * 5
+        if playerMon == playerTeam[0]:
+            score += ((1 / playerPercent) * 10)
+        else:
+            score += ((1 / playerPercent) * 2)
     return score
 
 ###############################################################################

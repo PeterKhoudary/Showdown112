@@ -66,7 +66,7 @@ garBase = {"name": "Gengar",
             "movepool" : {"Shadow Ball", "Focus Blast", "Energy Ball", "Thunderbolt", "Sludge Bomb", "Psychic"}}
 scizBase = {"name": "Scizor",
             "baseStats": {'HP': 70, 'ATK': 130, 'DEF': 100, 'SPATK': 55, 'SPDEF': 80, 'SPE': 65},
-            "types": {"ghost", "poison"},
+            "types": {"steel", "bug"},
             "movepool" : {"Bullet Punch", "X-Scissor", "Brick Break", "Iron Head", "Acrobatics", "Night Slash"}}
 kissBase = {"name": "Togekiss",
             "baseStats": {'HP': 85, 'ATK': 50, 'DEF': 95, 'SPATK': 120, 'SPDEF': 115, 'SPE': 80},
@@ -107,7 +107,7 @@ tar = Monster(tyrantBase,
                   [['Crunch', 24], ['Stone Edge', 8], ['Dragon Claw', 24], ['Ice Beam', 16]])
 volc = Monster(volcBase, 
                 {'HP': 0, 'ATK': 0, 'DEF': 0, 'SPATK': 252, 'SPDEF': 4, 'SPE': 252}, 
-                [['Psychic', 16], ['Bug Buzz', 16], ['Fire Blast', 8], ['Hurricane', 16]])
+                [['Bug Buzz', 16], ['Psychic', 16], ['Fire Blast', 8], ['Hurricane', 16]])
 drag = Monster(dragoniteBase, 
                 {'HP': 4, 'ATK': 252, 'DEF': 0, 'SPATK': 0, 'SPDEF': 0, 'SPE': 252}, 
                 [['Dragon Claw', 24], ['Extreme Speed', 8], ['Iron Head', 24], ['Earthquake', 16]])
